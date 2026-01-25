@@ -78,7 +78,7 @@ onUnmounted(() => ctx?.revert())
 </script>
 
 <template>
-  <div ref="containerRef" class="w-full h-[100dvh] bg-black overflow-hidden relative font-pangolin">
+  <div ref="containerRef" class="w-full h-dvh bg-black overflow-hidden relative font-pangolin">
     
     <div ref="closeButtonRef" 
          @click="closeInvitation" 
@@ -89,46 +89,74 @@ onUnmounted(() => ctx?.revert())
     </div>
 
     <div ref="innerRef" class="absolute inset-0 z-0 flex flex-col items-center justify-center bg-[#FFFBF0]"
-         :style="{ backgroundImage: `url('${paperTexture}')` }">
-         
-         <div class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-lg"></div>
-         <div class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-lg"></div>
-         <div class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-lg"></div>
-         <div class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-lg"></div>
+     :style="{ backgroundImage: `url('${paperTexture}')` }">
+     
+     <div class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-lg"></div>
+     <div class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-lg"></div>
+     <div class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-lg"></div>
+     <div class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-lg"></div>
 
-         <div ref="contentElementsRef" class="relative z-10 flex flex-col items-center text-center space-y-4 md:space-y-6 px-6 md:px-0 w-full max-w-md text-[#5d4037]">
-              <div>
-                  <p class="text-sm uppercase tracking-[2px] mb-1 font-bold">Trân trọng kính mời</p>
-                  <h2 class="text-base md:text-lg italic">Tới dự lễ Vu Quy của hai con chúng tôi</h2>
-              </div>
-              
-              <div class="text-5xl md:text-7xl text-[#b8860b] leading-10 py-2 font-patrick font-bold">
-                  Phương Huyền <br/> <span class="text-3xl md:text-4xl text-[#5d4037]">&</span> <br/> Văn Hiếu
+     <div ref="contentElementsRef" class="relative z-10 flex flex-col items-center text-center space-y-3 md:space-y-5 px-6 md:px-0 w-full max-w-md text-[#5d4037]">
+          
+          <div>
+              <p class="text-xs md:text-sm uppercase tracking-[2px] mb-1 font-bold">Trân trọng kính mời</p>
+              <h2 class="text-sm md:text-base italic">Tới dự lễ Vu Quy của hai con chúng tôi</h2>
+          </div>
+          
+          <div class="text-4xl md:text-6xl text-[#b8860b] leading-tight py-1 font-patrick font-bold">
+              Phương Huyền <br/> <span class="text-2xl md:text-3xl text-[#5d4037]">&</span> <br/> Văn Hiếu
+          </div>
+
+          <div class="w-full border-y-2 border-[#b8860b]/30 py-3 bg-[#b8860b]/10 rounded-lg">
+              <div class="mb-2 border-b border-[#b8860b]/20 pb-2">
+                  <div class="text-3xl md:text-5xl font-bold text-[#7f1d1d] tracking-widest font-patrick">
+                      22 . 02 . 2026
+                  </div>
+                  <p class="text-[10px] md:text-xs uppercase tracking-widest font-bold mt-1">
+                      (Tức ngày 06 tháng 01 năm Bính Ngọ)
+                  </p>
               </div>
 
-              <div class="w-full border-y-2 border-[#b8860b]/30 py-3 md:py-4 bg-[#b8860b]/10 rounded-lg">
-                  <p class="text-xs font-bold uppercase mb-1 md:mb-2">Vào hồi 11 giờ 30</p>
-                  <div class="text-4xl md:text-5xl font-bold text-[#7f1d1d] mb-1 md:mb-2 tracking-widest font-patrick">22.02.2026</div>
-                  <p class="text-xs uppercase tracking-widest">Tức ngày 6 tháng 1 năm Bính Ngọ</p>
+              <div class="flex flex-col space-y-2 mt-3 px-4">
+                  <div class="flex justify-between items-center">
+                      <div class="flex items-center space-x-2">
+                          <span class="text-[#b8860b]">❤</span>
+                          <span class="font-bold text-sm md:text-base uppercase">Bữa cơm thân mật:</span>
+                      </div>
+                      <span class="font-patrick text-xl md:text-2xl font-bold text-[#3E2723]">09:00</span>
+                  </div>
+
+                  <div class="flex justify-between items-center">
+                      <div class="flex items-center space-x-2">
+                          <span class="text-[#b8860b]">❤</span>
+                          <span class="font-bold text-sm md:text-base uppercase">Lễ Vu Quy:</span>
+                      </div>
+                      <span class="font-patrick text-xl md:text-2xl font-bold text-[#3E2723]">11:30</span>
+                  </div>
               </div>
-              
-              <div>
-                  <p class="font-bold uppercase text-[#3e2723] text-sm md:text-base mb-1">Tại Gia đình Nhà Gái</p>
-                  <p class="text-sm md:text-base">TDP Tân Tiến - Xã Kiến Xương - Hưng Yên</p>
-              </div>
-              
-              <div class="w-full grid grid-cols-2 gap-4 text-xs uppercase tracking-wide border-t-2 border-[#b8860b]/30 pt-3 md:pt-4 opacity-80">
-                  <div class="text-left"><span class="font-bold block text-[#7f1d1d] mb-1">Nhà Gái</span><p>Mẹ: Phạm Thị Báu</p></div>
-                  <div class="text-right"><span class="font-bold block text-[#7f1d1d] mb-1">Nhà Trai</span><p>Bố: Lều Văn Toàn</p><p>Mẹ: Vũ Thị Thuỷ</p></div>
-              </div>
-         </div>
-    </div>
+          </div>
+          
+          <div>
+              <p class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-1">Tại Tư Gia Nhà Gái</p>
+              <p class="text-xs md:text-sm">TDP Tân Tiến - Xã Kiến Xương - Hưng Yên</p>
+          </div>
+          
+          <div>
+
+          </div>
+          
+          <div class="w-full grid grid-cols-2 gap-4 text-[10px] md:text-xs uppercase tracking-wide border-t-2 border-[#b8860b]/30 pt-3 opacity-80">
+              <div class="text-left"><span class="font-bold block text-[#7f1d1d] mb-1">Nhà Gái</span><p>Mẹ: Phạm Thị Báu</p></div>
+              <div class="text-right"><span class="font-bold block text-[#7f1d1d] mb-1">Nhà Trai</span><p>Bố: Lều Văn Toàn</p><p>Mẹ: Vũ Thị Thuỷ</p></div>
+          </div>
+     </div>
+</div>
 
     <div ref="coverRef" class="absolute inset-0 z-20 w-full h-full shadow-[0_10px_30px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden flex flex-col justify-between bg-[#2b0a0a]">
         
         <div class="absolute inset-0 z-0">
             <img src="/images/cover-anime.jpg" class="w-full h-full object-cover scale-105" alt="Cover" />
-            <div class="absolute inset-0 bg-gradient-to-b from-[#3E2723]/20 via-transparent to-[#3E2723]/60 mix-blend-multiply"></div>
+            <div class="absolute inset-0 bg-linear-to-b from-[#3E2723]/20 via-transparent to-[#3E2723]/60 mix-blend-multiply"></div>
         </div>
 
         <div class="cover-content relative z-30 w-full pt-12 md:pt-16 px-4 flex flex-col items-center">
