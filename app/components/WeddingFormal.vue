@@ -95,7 +95,7 @@ onUnmounted(() => ctx?.revert());
     <div
       ref="closeButtonRef"
       @click="closeInvitation"
-      class="absolute right-6 top-6 z-50 cursor-pointer rounded-full border border-red-800/30 bg-white/50 p-2 text-red-800 shadow-sm opacity-0 scale-90 backdrop-blur-sm transition-all duration-300 pointer-events-none hover:bg-red-800 hover:text-white"
+      class="absolute right-4 top-4 z-50 cursor-pointer rounded-full border border-red-800/30 bg-white/50 p-2 text-red-800 shadow-sm opacity-0 scale-90 backdrop-blur-sm transition-all duration-300 pointer-events-none hover:bg-red-800 hover:text-white"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -103,7 +103,7 @@ onUnmounted(() => ctx?.revert());
         viewBox="0 0 24 24"
         stroke-width="2"
         stroke="currentColor"
-        class="h-6 w-6 md:h-8 md:w-8"
+        class="h-5 w-5 md:h-8 md:w-8"
       >
         <path
           stroke-linecap="round"
@@ -122,77 +122,77 @@ onUnmounted(() => ctx?.revert());
         class="pointer-events-none absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/ornament.png')] opacity-10"
       ></div>
       <div
-        class="pointer-events-none absolute inset-4 border-4 border-double border-yellow-700/40 md:inset-8"
+        class="pointer-events-none absolute inset-3 border-4 border-double border-yellow-700/40 md:inset-8"
       ></div>
 
       <div
         ref="contentElementsRef"
-        class="relative z-10 flex w-full max-w-md flex-col items-center space-y-5 px-8 text-center md:space-y-7 md:px-0"
+        class="relative z-10 flex h-full w-full max-w-md flex-col items-center justify-between px-6 py-12 text-center md:py-16 md:space-y-7 md:justify-center md:h-auto"
       >
-        <!-- Trân trọng kính mời -->
-        <div>
+        <div class="shrink-0">
           <p
-            class="font-cinzel mb-2 text-xs uppercase tracking-[4px] text-yellow-700 md:text-sm"
+            class="font-cinzel mb-1 text-[10px] uppercase tracking-[3px] text-yellow-700 md:mb-2 md:text-sm"
           >
             Trân trọng kính mời
           </p>
-          <h2 class="font-serif text-base italic text-[#5d4037] md:text-lg">
+          <h2 class="font-serif text-sm italic text-[#5d4037] md:text-lg">
             Tới dự lễ Vu Quy của hai con chúng tôi
           </h2>
         </div>
 
-        <!-- Tên cô dâu chú rể -->
         <div
-          class="font-pinyon py-2 text-5xl leading-10 text-yellow-700 drop-shadow-sm md:text-7xl"
+          class="font-pinyon shrink-0 py-1 text-5xl leading-tight text-yellow-700 drop-shadow-sm md:py-2 md:text-7xl"
         >
-          Phương Huyền <br />
-          <span class="font-serif text-2xl text-[#5d4037] italic md:text-3xl"
-            >&</span
-          >
-          <br />
-          Văn Hiếu
+          <div>Phương Huyền</div>
+          <div class="font-serif text-xl text-[#5d4037] italic md:text-3xl">
+            &
+          </div>
+          <div>Văn Hiếu</div>
         </div>
 
-        <!-- Thời gian -->
         <div
-          class="relative w-full overflow-hidden border-y border-yellow-700/50 bg-yellow-700/5 py-4"
+          class="relative w-full shrink-0 overflow-hidden border-y border-yellow-700/50 bg-yellow-700/5 py-2 md:py-4"
         >
           <div
             class="absolute inset-0 bg-[radial-gradient(circle_at_center,#B8860B_1px,transparent_1px)] bg-size-[10px_10px] opacity-30"
-          ></div>
+          />
           <div class="relative z-10">
-            <div class="mb-3 border-b border-yellow-700/30 pb-3">
+            <div
+              class="mb-2 border-b border-yellow-700/30 pb-2 md:mb-3 md:pb-3"
+            >
               <div
-                class="font-cinzel text-3xl font-bold tracking-[0.15em] text-red-900 md:text-5xl"
+                class="font-cinzel text-2xl font-bold tracking-[0.15em] text-red-900 md:text-5xl"
               >
                 22.02.2026
               </div>
               <p
-                class="font-cinzel mt-2 text-[11px] uppercase tracking-widest text-[#5d4037] md:text-xs"
+                class="font-cinzel mt-1 text-[9px] uppercase tracking-widest text-[#5d4037] md:mt-2 md:text-xs"
               >
                 (Tức ngày 06 tháng 01 năm Bính Ngọ)
               </p>
             </div>
-            <div class="mt-4 flex flex-col space-y-3 px-6">
+            <div
+              class="mt-2 flex flex-col space-y-1 px-4 md:mt-4 md:space-y-3 md:px-6"
+            >
               <div
                 class="flex items-baseline justify-between border-b border-dotted border-yellow-700/30 pb-1"
               >
                 <span
-                  class="font-cinzel text-sm uppercase text-[#5d4037] md:text-base"
-                  >Tiệc Mừng</span
+                  class="font-cinzel text-xs uppercase text-[#5d4037] md:text-base"
+                  >Bữa Cơm Thân Mật</span
                 >
                 <span
-                  class="font-cinzel text-xl font-bold text-red-900 md:text-2xl"
+                  class="font-cinzel text-lg font-bold text-red-900 md:text-2xl"
                   >09:00</span
                 >
               </div>
               <div class="flex items-baseline justify-between">
                 <span
-                  class="font-cinzel text-sm uppercase text-[#5d4037] md:text-base"
+                  class="font-cinzel text-xs uppercase text-[#5d4037] md:text-base"
                   >Lễ Vu Quy</span
                 >
                 <span
-                  class="font-cinzel text-xl font-bold text-red-900 md:text-2xl"
+                  class="font-cinzel text-lg font-bold text-red-900 md:text-2xl"
                   >11:30</span
                 >
               </div>
@@ -200,41 +200,43 @@ onUnmounted(() => ctx?.revert());
           </div>
         </div>
 
-        <!-- Địa điểm & Thông tin gia đình -->
-        <!-- Nhà Gái -->
-        <div>
-          <p
-            class="font-cinzel mb-1 text-sm font-bold uppercase text-[#3e2723] md:text-base"
-          >
-            Tại Tư Gia Nhà Gái
-          </p>
-          <p class="font-serif text-sm italic md:text-base">
-            TDP Tân Tiến - Xã Kiến Xương - Hưng Yên
-          </p>
+        <div class="shrink-0 space-y-2 md:space-y-4">
+          <div>
+            <p
+              class="font-cinzel mb-0.5 text-xs font-bold uppercase text-[#3e2723] md:mb-1 md:text-base"
+            >
+              Tại Tư Gia Nhà Gái
+            </p>
+            <p class="font-serif text-xs italic md:text-base">
+              TDP Tân Tiến - Xã Kiến Xương - Hưng Yên
+            </p>
+          </div>
+
+          <div>
+            <p
+              class="font-cinzel mb-0.5 text-xs font-bold uppercase text-[#3e2723] md:mb-1 md:text-base"
+            >
+              Nhà Trai
+            </p>
+            <p class="font-serif text-xs italic md:text-base">
+              Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên
+            </p>
+          </div>
         </div>
 
-        <!-- Nhà Trai -->
-        <div>
-          <p
-            class="font-cinzel mb-1 text-sm font-bold uppercase text-[#3e2723] md:text-base"
-          >
-            Nhà Trai
-          </p>
-          <p class="font-serif text-sm italic md:text-base">
-            Thôn Thái Công Nam - Xã Hồng Vũ - Tỉnh Hưng Yên
-          </p>
-        </div>
-
-        <!-- Thông tin bố mẹ hai bên -->
         <div
-          class="font-cinzel grid w-full grid-cols-2 gap-6 border-t border-yellow-700/30 pt-4 text-[10px] uppercase tracking-widest opacity-80 md:text-xs"
+          class="font-cinzel grid w-full shrink-0 grid-cols-2 gap-4 border-t border-yellow-700/30 pt-2 text-[9px] uppercase tracking-widest opacity-80 md:gap-6 md:pt-4 md:text-xs"
         >
           <div class="text-left">
-            <span class="mb-2 block font-bold text-red-900">Nhà Gái</span>
+            <span class="mb-1 block font-bold text-red-900 md:mb-2"
+              >Nhà Gái</span
+            >
             <p>Mẹ: Phạm Thị Báu</p>
           </div>
           <div class="text-right">
-            <span class="mb-2 block font-bold text-red-900">Nhà Trai</span>
+            <span class="mb-1 block font-bold text-red-900 md:mb-2"
+              >Nhà Trai</span
+            >
             <p>Bố: Lều Văn Toàn</p>
             <p>Mẹ: Vũ Thị Thuỷ</p>
           </div>
@@ -260,37 +262,37 @@ onUnmounted(() => ctx?.revert());
         <div
           class="mb-2 flex items-center justify-center space-x-4 opacity-100"
         >
-          <div class="h-px w-12 bg-red-800"></div>
+          <div class="h-px w-8 bg-red-800 md:w-12"></div>
           <h2
-            class="font-cinzel text-sm font-bold uppercase tracking-[6px] text-red-800 md:text-base"
+            class="font-cinzel text-xs font-bold uppercase tracking-[4px] text-red-800 md:tracking-[6px] md:text-base"
           >
             Thiệp Mời
           </h2>
-          <div class="h-px w-12 bg-red-800"></div>
+          <div class="h-px w-8 bg-red-800 md:w-12"></div>
         </div>
 
         <div class="relative flex flex-col items-center justify-center py-4">
           <span
-            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[10rem] leading-none text-red-900 opacity-30 blur-[1px] md:text-[12rem] z-0"
+            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-red-900 opacity-30 blur-[1px] md:text-[12rem] z-0"
           >
             &
           </span>
 
           <span
-            class="font-pinyon relative z-10 -mb-3 block text-6xl leading-normal text-red-800 red-gradient-text md:text-8xl"
+            class="font-pinyon relative z-10 -mb-2 block text-5xl leading-normal text-red-800 red-gradient-text md:-mb-3 md:text-8xl"
           >
             Phương Huyền
           </span>
 
           <span
-            class="font-pinyon relative z-10 block text-6xl leading-normal text-red-800 red-gradient-text md:text-8xl"
+            class="font-pinyon relative z-10 block text-5xl leading-normal text-red-800 red-gradient-text md:text-8xl"
           >
             Văn Hiếu
           </span>
         </div>
 
         <p
-          class="font-cinzel mt-2 border-y border-red-800/30 py-2 text-sm font-bold uppercase tracking-[5px] text-red-800 md:text-base"
+          class="font-cinzel mt-2 border-y border-red-800/30 py-2 text-xs font-bold uppercase tracking-[4px] text-red-800 md:text-base md:tracking-[5px]"
         >
           22 . 02 . 2026
         </p>
@@ -299,16 +301,16 @@ onUnmounted(() => ctx?.revert());
       <div
         ref="openButtonRef"
         @click="openInvitation"
-        class="group relative z-30 mb-6 flex w-full cursor-pointer flex-col items-center"
+        class="group relative z-30 mb-8 flex w-full cursor-pointer flex-col items-center"
       >
         <p
-          class="font-cinzel mb-2 text-[10px] font-bold uppercase tracking-[3px] text-yellow-400 opacity-80 transition-all group-hover:tracking-[4px] group-hover:opacity-100"
+          class="font-cinzel mb-2 text-[9px] font-bold uppercase tracking-[3px] text-yellow-400 opacity-80 transition-all group-hover:tracking-[4px] group-hover:opacity-100 md:text-[10px]"
         >
           Chạm để mở
         </p>
 
         <div
-          class="animate-pulse-slow relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-red-800 bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-red-800 md:h-14 md:w-14"
+          class="animate-pulse-slow relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-800 bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-red-800 md:h-14 md:w-14"
         >
           <div
             class="absolute inset-1 scale-90 rounded-full border border-red-800/40 transition-transform duration-500 group-hover:scale-100 group-hover:border-white"
@@ -319,7 +321,7 @@ onUnmounted(() => ctx?.revert());
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="#991B1B"
-            class="h-6 w-6 transition-transform duration-500 group-hover:translate-y-0.5 group-hover:stroke-white md:h-7 md:w-7"
+            class="h-5 w-5 transition-transform duration-500 group-hover:translate-y-0.5 group-hover:stroke-white md:h-7 md:w-7"
           >
             <path
               stroke-linecap="round"
@@ -370,4 +372,3 @@ onUnmounted(() => ctx?.revert());
   }
 }
 </style>
-s
