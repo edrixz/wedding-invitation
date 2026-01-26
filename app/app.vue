@@ -1,67 +1,88 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import WeddingMain from './components/WeddingMain.vue'
-import GlobalLoading from './components/GlobalLoading.vue'
+import { ref, onMounted, computed } from "vue";
+import { useHead } from "#imports";
+import WeddingMain from "./components/WeddingMain.vue";
+import GlobalLoading from "./components/GlobalLoading.vue";
 
-// CẤU HÌNH: Thời gian chờ tối thiểu (Miliseconds)
-// 2000 = 2 giây. Bạn sửa số này nếu muốn lâu hơn.
-const MIN_LOADING_TIME = 2000 
+// 1. Preload Video
+useHead({
+  link: [
+    {
+      rel: "preload",
+      as: "video",
+      href: "/video/loading.mp4",
+      type: "video/mp4",
+    },
+  ],
+});
+
+// CẤU HÌNH THỜI GIAN
+const MIN_LOADING_TIME = 2500;
 
 // State
-const isLoading = ref(true)
-const loadProgress = ref(0)
+const isLoading = ref(true);
+const rawProgress = ref(0); // Giá trị thực (có thể là số lẻ)
 
-// Danh sách các file cần tải trước
+// Computed để làm tròn số khi truyền vào component (tránh hiển thị 12.345%)
+const loadProgress = computed(() => Math.floor(rawProgress.value));
+
 const assetsToPreload = [
-  '/images/cover-anime.jpg',
-  '/images/cover-real.jpg',
-  '/images/title.png',
-  '/video/loading.mp4', // Preload luôn cả video loading nếu cần
-  'https://www.transparenttextures.com/patterns/cream-paper.png'
-]
+  "/images/loading-thumb.jpg",
+  "/images/cover-anime.jpg",
+  "/images/cover-real.jpg",
+  "/images/title.png",
+  "https://www.transparenttextures.com/patterns/cream-paper.png",
+];
 
 const preloadImage = (src: string) => {
   return new Promise((resolve) => {
-    // Nếu là video thì bỏ qua hoặc xử lý riêng, ở đây ta giả định preload ảnh
-    if (src.endsWith('.mp4')) {
-        resolve(true)
-        return
-    }
-    const img = new Image()
-    img.src = src
-    img.onload = resolve
-    img.onerror = resolve 
-  })
-}
+    const img = new Image();
+    img.src = src;
+    img.onload = resolve;
+    img.onerror = resolve;
+  });
+};
 
 onMounted(async () => {
-  const totalAssets = assetsToPreload.length
-  let loadedCount = 0
-  
-  // 1. Tạo Promise đếm ngược thời gian tối thiểu
-  const timerPromise = new Promise(resolve => setTimeout(resolve, MIN_LOADING_TIME))
+  // --- A. LOGIC TĂNG TIẾN TRÌNH TỰ ĐỘNG (FAKE PROGRESS) ---
+  // Mục tiêu: Tăng từ 0 -> 90% trong khoảng MIN_LOADING_TIME
+  const intervalTime = 30; // Cập nhật mỗi 30ms cho mượt
+  const totalSteps = MIN_LOADING_TIME / intervalTime;
+  const stepIncrement = 90 / totalSteps; // Mỗi bước tăng bao nhiêu %
 
-  // 2. Tạo Promise tải tài nguyên
-  const assetPromises = assetsToPreload.map(async (src) => {
-    await preloadImage(src)
-    loadedCount++
-    // Chỉ hiển thị tiến trình tối đa 90% khi đang tải
-    // Để dành 10% cuối cho hiệu ứng mượt mà khi kết thúc
-    loadProgress.value = Math.floor((loadedCount / totalAssets) * 90)
-  })
+  const progressInterval = setInterval(() => {
+    // Tăng dần
+    const nextValue = rawProgress.value + stepIncrement;
 
-  // 3. Đợi CẢ HAI việc trên cùng xong
-  // (Dù ảnh tải xong trong 0.1s, nó vẫn phải đợi timerPromise đủ 2s)
-  await Promise.all([Promise.all(assetPromises), timerPromise])
+    // Chặn lại ở 90% (hoặc 95%) nếu chưa tải xong thật
+    if (nextValue >= 90) {
+      rawProgress.value = 90;
+    } else {
+      rawProgress.value = nextValue;
+    }
+  }, intervalTime);
 
-  // 4. Khi đã xong tất cả -> Đẩy lên 100%
-  loadProgress.value = 100
-  
-  // Delay nhẹ 0.5s ở trạng thái 100% cho người dùng nhìn thấy "100%"
+  // --- B. LOGIC TẢI TÀI NGUYÊN THẬT (REAL LOADING) ---
+  const timerPromise = new Promise((resolve) =>
+    setTimeout(resolve, MIN_LOADING_TIME),
+  );
+
+  const assetPromises = assetsToPreload.map((src) => preloadImage(src));
+
+  // Đợi cả Timer và việc Tải ảnh xong
+  await Promise.all([Promise.all(assetPromises), timerPromise]);
+
+  // --- C. KẾT THÚC ---
+  // Dọn dẹp bộ đếm
+  clearInterval(progressInterval);
+
+  // Nhảy vọt lên 100% (Xong hẳn)
+  rawProgress.value = 100;
+
   setTimeout(() => {
-    isLoading.value = false
-  }, 500)
-})
+    isLoading.value = false;
+  }, 500);
+});
 </script>
 
 <template>
@@ -77,7 +98,6 @@ onMounted(async () => {
 </template>
 
 <style>
-/* CSS Fade mượt mà */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.8s ease;
