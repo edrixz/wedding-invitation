@@ -81,7 +81,7 @@ const startAutoShine = () => {
 // --- STYLE MẠ VÀNG LÓE SÁNG (HIGH CONTRAST) ---
 const dynamicGoldStyle = computed(() => ({
   // Gradient: Nâu -> Vàng -> TRẮNG (Điểm lóe sáng) -> Vàng -> Nâu
-  backgroundImage: `linear-gradient(${tiltAngle.value}deg, #8a6e2f 0%, #e3d278 35%, #ffffff 50%, #e3d278 65%, #8a6e2f 100%)`,
+  backgroundImage: `linear-gradient(${tiltAngle.value}deg, #FFD700 0%, #FFED4E 25%, #C5A028 50%, #FFD700 75%, #FFED4E 100%)`,
   webkitBackgroundClip: "text",
   backgroundClip: "text",
   color: "transparent",
