@@ -13,14 +13,70 @@ const closeButtonRef = ref<HTMLElement | null>(null);
 // State
 const isOpened = ref(false);
 const tiltAngle = ref(135); // Góc ánh sáng mặc định
+const hasSensorAccess = ref(false); // Biến kiểm tra quyền truy cập
 
-// --- 1. LOGIC CON QUAY HỒI CHUYỂN (GYROSCOPE) ---
+// --- 1. LOGIC TÍNH TOÁN GÓC NGHIÊNG ---
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   const gamma = event.gamma || 0; // Nghiêng trái/phải
-  // Tính toán góc gradient dựa trên độ nghiêng
-  // Nhân hệ số 1.5 để nhạy hơn với chuyển động tay
-  let newAngle = 135 + gamma * 1.5;
+  // Tính toán góc gradient. Nhân hệ số 2 để nhạy hơn
+  let newAngle = 135 + gamma * 2;
   tiltAngle.value = newAngle;
+};
+
+// --- 2. LOGIC XIN QUYỀN TRUY CẬP (QUAN TRỌNG CHO IPHONE) ---
+const requestMotionPermission = async () => {
+  // Nếu đã có quyền rồi thì thôi
+  if (hasSensorAccess.value) return;
+
+  // Kiểm tra xem thiết bị có phải iOS 13+ không (cần requestPermission)
+  if (
+    typeof DeviceOrientationEvent !== "undefined" &&
+    typeof (DeviceOrientationEvent as any).requestPermission === "function"
+  ) {
+    try {
+      // Lệnh này bắt buộc phải gọi khi người dùng CLICK
+      const permissionState = await (
+        DeviceOrientationEvent as any
+      ).requestPermission();
+      if (permissionState === "granted") {
+        window.addEventListener(
+          "deviceorientation",
+          handleDeviceOrientation,
+          true,
+        );
+        hasSensorAccess.value = true;
+      } else {
+        // Nếu bị từ chối, chạy hiệu ứng giả lập
+        startAutoShine();
+      }
+    } catch (e) {
+      console.warn("Lỗi xin quyền iOS:", e);
+      startAutoShine();
+    }
+  } else {
+    // Android hoặc thiết bị đời cũ (không cần xin quyền gắt gao)
+    // Nhưng vẫn cần check xem có hỗ trợ không
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener(
+        "deviceorientation",
+        handleDeviceOrientation,
+        true,
+      );
+      hasSensorAccess.value = true;
+    } else {
+      startAutoShine();
+    }
+  }
+};
+
+// --- 3. FALLBACK: TỰ ĐỘNG LẤP LÁNH (CHO DESKTOP HOẶC KHI TỪ CHỐI QUYỀN) ---
+const startAutoShine = () => {
+  let angle = 135;
+  // Tự động xoay góc nhẹ nhàng để chữ vẫn đẹp dù không nghiêng máy
+  setInterval(() => {
+    angle += 0.5;
+    tiltAngle.value = angle;
+  }, 50);
 };
 
 // Style động cho chữ Mạ Vàng (Gold Foil)
@@ -31,6 +87,8 @@ const dynamicGoldStyle = computed(() => ({
   color: "transparent",
   // Thêm bóng nhẹ để tạo khối kim loại
   filter: "drop-shadow(0px 1px 0px rgba(100, 80, 20, 0.3))",
+  // Thêm transition để mượt mà hơn
+  transition: "background-image 0.1s linear",
 }));
 
 let ctx: gsap.Context;
@@ -39,7 +97,11 @@ let tl: gsap.core.Timeline;
 const paperTexture =
   "https://www.transparenttextures.com/patterns/cream-paper.png";
 
-const openInvitation = () => {
+// SỬA LẠI HÀM MỞ THIỆP
+const openInvitation = async () => {
+  // Xin quyền ngay khi người dùng chạm vào nút mở
+  await requestMotionPermission();
+
   isOpened.value = true;
   if (tl) tl.play();
 };
@@ -49,8 +111,12 @@ const closeInvitation = () => {
 };
 
 onMounted(() => {
-  // Đăng ký sự kiện nghiêng điện thoại
-  if (window.DeviceOrientationEvent) {
+  // Thử kích hoạt nhẹ cho Android/PC (iOS sẽ chặn dòng này, chờ click mới chạy)
+  if (
+    !hasSensorAccess.value &&
+    window.DeviceOrientationEvent &&
+    typeof (DeviceOrientationEvent as any).requestPermission !== "function"
+  ) {
     window.addEventListener("deviceorientation", handleDeviceOrientation, true);
   }
 
@@ -309,7 +375,7 @@ onUnmounted(() => {
 
         <div class="relative flex flex-col items-center justify-center py-4">
           <span
-            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-red-900 opacity-30 blur-[1px] md:text-[12rem] z-0"
+            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-red-500 opacity-20 blur-[1px] md:text-[12rem] z-0"
           >
             &
           </span>
