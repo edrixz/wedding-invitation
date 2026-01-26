@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
 // Refs
@@ -12,6 +12,26 @@ const closeButtonRef = ref<HTMLElement | null>(null);
 
 // State
 const isOpened = ref(false);
+const tiltAngle = ref(135); // Góc ánh sáng mặc định
+
+// --- 1. LOGIC CON QUAY HỒI CHUYỂN (GYROSCOPE) ---
+const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+  const gamma = event.gamma || 0; // Nghiêng trái/phải
+  // Tính toán góc gradient dựa trên độ nghiêng
+  // Nhân hệ số 1.5 để nhạy hơn với chuyển động tay
+  let newAngle = 135 + gamma * 1.5;
+  tiltAngle.value = newAngle;
+};
+
+// Style động cho chữ Mạ Vàng (Gold Foil)
+const dynamicGoldStyle = computed(() => ({
+  backgroundImage: `linear-gradient(${tiltAngle.value}deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)`,
+  webkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+  // Thêm bóng nhẹ để tạo khối kim loại
+  filter: "drop-shadow(0px 1px 0px rgba(100, 80, 20, 0.3))",
+}));
 
 let ctx: gsap.Context;
 let tl: gsap.core.Timeline;
@@ -29,6 +49,11 @@ const closeInvitation = () => {
 };
 
 onMounted(() => {
+  // Đăng ký sự kiện nghiêng điện thoại
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientation", handleDeviceOrientation, true);
+  }
+
   ctx = gsap.context(() => {
     tl = gsap.timeline({
       paused: true,
@@ -84,7 +109,12 @@ onMounted(() => {
   }, containerRef.value!);
 });
 
-onUnmounted(() => ctx?.revert());
+onUnmounted(() => {
+  if (window.DeviceOrientationEvent) {
+    window.removeEventListener("deviceorientation", handleDeviceOrientation);
+  }
+  ctx?.revert();
+});
 </script>
 
 <template>
@@ -93,9 +123,14 @@ onUnmounted(() => ctx?.revert());
     class="relative h-dvh w-full overflow-hidden bg-[#1a0505] font-serif text-[#3E2723]"
   >
     <div
+      class="pointer-events-none fixed inset-0 z-9999 opacity-40 mix-blend-multiply"
+      :style="{ backgroundImage: `url('${paperTexture}')` }"
+    ></div>
+
+    <div
       ref="closeButtonRef"
       @click="closeInvitation"
-      class="absolute right-4 top-4 z-50 cursor-pointer rounded-full border border-red-800/30 bg-white/50 p-2 text-red-800 shadow-sm opacity-0 scale-90 backdrop-blur-sm transition-all duration-300 pointer-events-none hover:bg-red-800 hover:text-white"
+      class="absolute right-5 top-5 z-50 cursor-pointer rounded-full border border-red-800/30 bg-white/50 p-2 text-red-800 shadow-sm opacity-0 scale-90 backdrop-blur-sm transition-all duration-300 pointer-events-none hover:bg-red-800 hover:text-white"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +151,6 @@ onUnmounted(() => ctx?.revert());
     <div
       ref="innerRef"
       class="absolute inset-0 z-0 flex flex-col items-center justify-center bg-[#FFFBF0]"
-      :style="{ backgroundImage: `url('${paperTexture}')` }"
     >
       <div
         class="pointer-events-none absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/ornament.png')] opacity-10"
@@ -141,13 +175,15 @@ onUnmounted(() => ctx?.revert());
         </div>
 
         <div
-          class="font-pinyon shrink-0 py-1 text-5xl leading-tight text-yellow-700 drop-shadow-sm md:py-2 md:text-7xl"
+          class="font-pinyon shrink-0 py-1 text-5xl leading-tight drop-shadow-sm md:py-2 md:text-7xl"
         >
-          <div>Phương Huyền</div>
-          <div class="font-serif text-xl text-[#5d4037] italic md:text-3xl">
+          <div :style="dynamicGoldStyle" class="pb-1">Phương Huyền</div>
+          <div
+            class="font-serif text-xl text-[#B8860B] italic md:text-3xl my-1"
+          >
             &
           </div>
-          <div>Văn Hiếu</div>
+          <div :style="dynamicGoldStyle" class="pb-1">Văn Hiếu</div>
         </div>
 
         <div
@@ -310,17 +346,17 @@ onUnmounted(() => ctx?.revert());
         </p>
 
         <div
-          class="animate-pulse-slow relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-800 bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-red-800 md:h-14 md:w-14"
+          class="animate-pulse-slow relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#B8860B] bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-[#B8860B] md:h-14 md:w-14"
         >
           <div
-            class="absolute inset-1 scale-90 rounded-full border border-red-800/40 transition-transform duration-500 group-hover:scale-100 group-hover:border-white"
+            class="absolute inset-1 scale-90 rounded-full border border-[#B8860B]/40 transition-transform duration-500 group-hover:scale-100 group-hover:border-white"
           ></div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="1.5"
-            stroke="#991B1B"
+            stroke="#B8860B"
             class="h-5 w-5 transition-transform duration-500 group-hover:translate-y-0.5 group-hover:stroke-white md:h-7 md:w-7"
           >
             <path
@@ -336,26 +372,29 @@ onUnmounted(() => ctx?.revert());
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&display=swap");
+/* 3. SỬ DỤNG BỘ FONT BẠN ĐÃ CHỌN: Cinzel + Cormorant + Great Vibes */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Great+Vibes&display=swap");
 
+/* Áp dụng font */
 .font-cinzel {
   font-family: "Cinzel", serif;
 }
+
+/* Thay Pinyon Script bằng Great Vibes (nhưng vẫn giữ tên class font-pinyon như code cũ của bạn) */
 .font-pinyon {
-  font-family: "Pinyon Script", cursive;
+  font-family: "Great Vibes", cursive;
+  transform: scale(1.1);
+  transform-origin: center;
 }
+
+/* Thay font serif mặc định bằng Cormorant Garamond */
 .font-serif {
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: "Cormorant Garamond", serif;
+  /* Font này hơi mảnh nên tăng font-weight nhẹ để dễ đọc hơn */
+  font-weight: 600;
 }
 
-.red-gradient-text {
-  background: linear-gradient(to bottom, #d32f2f 0%, #b71c1c 60%, #880e4f 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 2px 0px rgba(255, 255, 255, 0.3));
-}
-
+/* Animation nút bấm (Đã đổi sang màu vàng) */
 .animate-pulse-slow {
   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -364,11 +403,11 @@ onUnmounted(() => ctx?.revert());
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(153, 27, 27, 0.4);
+    box-shadow: 0 0 0 0 rgba(184, 134, 11, 0.4);
   }
   50% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 8px rgba(153, 27, 27, 0);
+    box-shadow: 0 0 0 8px rgba(184, 134, 11, 0);
   }
 }
 </style>

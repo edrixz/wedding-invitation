@@ -1,72 +1,117 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-// Import 2 component giao diện
 import WeddingCartoon from "./WeddingCartoon.vue";
 import WeddingFormal from "./WeddingFormal.vue";
 
-// State để lưu style hiện tại ('cartoon' hoặc 'formal')
-const currentStyle = ref<"cartoon" | "formal">("cartoon"); // Mặc định là cartoon
+// --- STATE ---
+const currentStyle = ref("formal");
+const isSwitching = ref(false);
 
-// Computed property để xác định component nào sẽ được render
-const currentComponent = computed(() => {
-  return currentStyle.value === "cartoon" ? WeddingCartoon : WeddingFormal;
-});
+// Computed
+const isCartoon = computed(() => currentStyle.value === "cartoon");
 
-// Hàm xử lý khi chọn dropdown
-const handleStyleChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  currentStyle.value = target.value as "cartoon" | "formal";
+// --- LOGIC ---
+const toggleStyle = async () => {
+  if (isSwitching.value) return;
+
+  const nextStyle = isCartoon.value ? "formal" : "cartoon";
+  isSwitching.value = true;
+
+  try {
+    const img = new Image();
+    img.src =
+      nextStyle === "formal" ? "/images/cover.jpg" : "/images/cover-anime.jpg";
+    await img.decode();
+  } catch (e) {
+    console.warn("Preload failed", e);
+  }
+
+  currentStyle.value = nextStyle;
+  isSwitching.value = false;
 };
 </script>
 
 <template>
   <div class="relative w-full h-full">
-    <div class="fixed top-4 left-4 z-9999">
-      <div class="relative inline-block text-left">
-        <select
-          :value="currentStyle"
-          @change="handleStyleChange"
-          class="appearance-none bg-black/50 backdrop-blur-md text-white/90 border border-white/20 rounded-full px-4 py-2 pr-8 text-sm font-medium hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50 cursor-pointer transition-all"
+    <div class="fixed top-5 left-5 z-9999">
+      <button
+        @click="toggleStyle"
+        :disabled="isSwitching"
+        class="group relative flex items-center cursor-pointer outline-none select-none w-14 h-8 rounded-full transition-all duration-500 ease-in-out"
+        :class="[
+          // STYLE 1: FORMAL (Nền đỏ tối, viền vàng mảnh)
+          !isCartoon
+            ? 'bg-red-950/80 border border-yellow-700/40 backdrop-blur-sm shadow-sm'
+            : '',
+
+          // STYLE 2: CARTOON (Nền vàng tươi, viền nâu dày, bóng cứng)
+          isCartoon
+            ? 'bg-[#FFD54F] border-2 border-[#3E2723] shadow-[2px_2px_0px_#3E2723]'
+            : '',
+        ]"
+      >
+        <div
+          v-if="isSwitching"
+          class="absolute inset-0 flex items-center justify-center z-20"
         >
-          <option value="cartoon" class="text-black">
-            Phong cách Hoạt hình
-          </option>
-          <option value="formal" class="text-black">
-            Phong cách Trang trọng
-          </option>
-        </select>
+          <div
+            class="w-3 h-3 border-2 rounded-full animate-spin border-white/30 border-t-white"
+            :class="isCartoon ? 'border-amber-900/30 border-t-amber-900' : ''"
+          ></div>
+        </div>
 
         <div
-          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/70"
+          class="absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-500 cubic-bezier flex items-center justify-center z-10 shadow-sm"
+          :class="[
+            // Vị trí Formal (Trái): left-1 (4px)
+            !isCartoon
+              ? 'left-1 w-6 h-6 bg-linear-to-br from-yellow-50 to-yellow-600 border border-white/20'
+              : '',
+
+            // Vị trí Cartoon (Phải): left-[calc(100%-1.75rem)] (Tính toán để sát phải tương ứng)
+            isCartoon
+              ? 'left-[calc(100%-1.6rem)] w-5 h-5 bg-white border-2 border-[#3E2723]'
+              : '',
+          ]"
         >
-          <svg
-            class="fill-current h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
+          <div
+            class="transform transition-transform duration-500"
+            :class="isCartoon ? 'rotate-12 scale-90' : 'scale-75'"
           >
-            <path
-              d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
-            />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              class="w-3 h-3 text-red-900"
+            >
+              <path
+                d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
+              />
+            </svg>
+          </div>
         </div>
-      </div>
+      </button>
     </div>
 
-    <Transition name="fade" mode="out-in">
-      <component :is="currentComponent" :key="currentStyle" />
+    <Transition name="fade-slow" mode="out-in">
+      <component :is="isCartoon ? WeddingCartoon : WeddingFormal" />
     </Transition>
   </div>
 </template>
 
 <style scoped>
-/* Hiệu ứng fade nhẹ khi chuyển component */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+/* Transition Fade Mượt */
+.fade-slow-enter-active,
+.fade-slow-leave-active {
+  transition: opacity 0.6s ease;
+}
+.fade-slow-enter-from,
+.fade-slow-leave-to {
+  opacity: 0;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+/* Hiệu ứng nảy khi chuyển toggle */
+.cubic-bezier {
+  transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 </style>

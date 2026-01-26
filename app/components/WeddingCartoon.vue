@@ -122,7 +122,7 @@ onUnmounted(() => ctx?.revert());
       class="absolute inset-0 z-0 flex flex-col items-center justify-center bg-[#FFFBF0]"
       :style="{ backgroundImage: `url('${paperTexture}')` }"
     >
-      <div
+      <!-- <div
         class="absolute top-6 left-6 w-8 h-8 md:w-12 md:h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-lg"
       ></div>
       <div
@@ -133,7 +133,7 @@ onUnmounted(() => ctx?.revert());
       ></div>
       <div
         class="absolute bottom-6 right-6 w-8 h-8 md:w-12 md:h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-lg"
-      ></div>
+      ></div> -->
 
       <div
         ref="contentElementsRef"
@@ -211,6 +211,17 @@ onUnmounted(() => ctx?.revert());
           </p>
           <p class="text-[11px] md:text-sm italic">
             TDP Tân Tiến - Xã Kiến Xương - Hưng Yên
+          </p>
+        </div>
+
+        <div class="shrink-0">
+          <p
+            class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-0.5"
+          >
+            Nhà Trai
+          </p>
+          <p class="text-[11px] md:text-sm italic">
+            Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên
           </p>
         </div>
 
