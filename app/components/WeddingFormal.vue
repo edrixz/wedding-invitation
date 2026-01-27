@@ -339,7 +339,7 @@ onUnmounted(() => {
         class="cover-actions relative z-30 mb-12 flex flex-col items-center w-full px-8 space-y-4"
       >
         <p
-          class="font-cinzel text-[10px] uppercase tracking-widest text-white mb-2 opacity-80"
+          class="font-cinzel text-[10px] uppercase tracking-widest text-white mb-2 opacity-90 drop-shadow-md"
         >
           Trân trọng kính mời
         </p>
@@ -347,20 +347,20 @@ onUnmounted(() => {
         <div class="flex flex-col w-full max-w-xs space-y-3">
           <button
             @click="openFor('bride')"
-            class="group relative w-full overflow-hidden rounded-full border border-[#B8860B]/50 bg-white/60 py-3 text-[#5d4037] shadow-lg backdrop-blur-md transition-all hover:bg-[#B8860B] hover:text-white hover:border-transparent active:scale-95"
+            class="group relative w-full overflow-hidden rounded-full border-2 border-[#B8860B] bg-[#FFF8E1] py-3.5 text-[#991B1B] shadow-xl transition-all hover:bg-[#B8860B] hover:text-white hover:border-[#FFF8E1] active:scale-95"
           >
             <span
-              class="font-cinzel text-xs font-bold uppercase tracking-[2px] group-hover:tracking-[3px] transition-all"
+              class="font-cinzel text-sm font-bold uppercase tracking-[2px] group-hover:tracking-[3px] transition-all"
               >Khách Nhà Gái</span
             >
           </button>
 
           <button
             @click="openFor('groom')"
-            class="group relative w-full overflow-hidden rounded-full border border-[#B8860B]/50 bg-white/60 py-3 text-[#5d4037] shadow-lg backdrop-blur-md transition-all hover:bg-[#B8860B] hover:text-white hover:border-transparent active:scale-95"
+            class="group relative w-full overflow-hidden rounded-full border-2 border-[#B8860B] bg-[#FFF8E1] py-3.5 text-[#991B1B] shadow-xl transition-all hover:bg-[#B8860B] hover:text-white hover:border-[#FFF8E1] active:scale-95"
           >
             <span
-              class="font-cinzel text-xs font-bold uppercase tracking-[2px] group-hover:tracking-[3px] transition-all"
+              class="font-cinzel text-sm font-bold uppercase tracking-[2px] group-hover:tracking-[3px] transition-all"
               >Khách Nhà Trai</span
             >
           </button>
