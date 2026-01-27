@@ -1,17 +1,51 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
-// Refs
+// --- CẤU HÌNH DỮ LIỆU (CARTOON VERSION) ---
+const WEDDING_DATA = {
+  bride: {
+    // NHÀ GÁI
+    ceremonyTitle: "Lễ Vu Quy",
+    mainName1: "Phương Huyền",
+    mainName2: "Văn Hiếu",
+    date: "22.02.2026",
+    lunarDate: "(Tức ngày 06 tháng 01 năm Bính Ngọ)",
+    // Icon trái tim hoặc hoa cho cute
+    time1: { label: "Bữa Cơm Thân Mật", value: "09:00", icon: "🍚" },
+    time2: { label: "Lễ Vu Quy", value: "11:30", icon: "💍" },
+    locationTitle: "Tại Tư Gia Nhà Gái",
+    address: "TDP Tân Tiến - Xã Kiến Xương - Hưng Yên",
+    mapLink: "#",
+  },
+  groom: {
+    // NHÀ TRAI
+    ceremonyTitle: "Lễ Thành Hôn",
+    mainName1: "Văn Hiếu",
+    mainName2: "Phương Huyền",
+    date: "22.02.2026",
+    lunarDate: "(Tức ngày 06 tháng 01 năm Bính Ngọ)",
+    time1: { label: "Tiệc Mừng", value: "10:30", icon: "🍷" },
+    time2: { label: "Lễ Thành Hôn", value: "12:00", icon: "💞" },
+    locationTitle: "Tại Tư Gia Nhà Trai",
+    address: "Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên",
+    mapLink: "#",
+  },
+};
+
+// State
+const isOpened = ref(false);
+const currentSide = ref<"bride" | "groom">("bride");
+
+// Computed Data
+const data = computed(() => WEDDING_DATA[currentSide.value]);
+
+// Refs & GSAP
 const containerRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
 const innerRef = ref<HTMLElement | null>(null);
 const contentElementsRef = ref<HTMLElement | null>(null);
-const openButtonRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLElement | null>(null);
-
-// State
-const isOpened = ref(false);
 
 let ctx: gsap.Context;
 let tl: gsap.core.Timeline;
@@ -19,7 +53,9 @@ let tl: gsap.core.Timeline;
 const paperTexture =
   "https://www.transparenttextures.com/patterns/cream-paper.png";
 
-const openInvitation = () => {
+// Hàm mở thiệp
+const openFor = (side: "bride" | "groom") => {
+  currentSide.value = side;
   isOpened.value = true;
   if (tl) tl.play();
 };
@@ -37,53 +73,32 @@ onMounted(() => {
       },
     });
 
-    // 1. Ẩn nút Mở và logo trên bìa
-    tl.to([openButtonRef.value, ".cover-content"], {
+    // Animation mở thiệp (Cartoon style: Nảy mạnh hơn)
+    tl.to(".cover-actions", {
       opacity: 0,
-      scale: 0.9,
+      scale: 0.8,
       duration: 0.3,
+      ease: "back.in(1.7)",
       pointerEvents: "none",
     })
-
-      // 2. Bìa trượt lên trên
-      .to(coverRef.value, {
-        y: "-100%",
-        duration: 1.5,
-        ease: "power2.inOut",
-      })
-
-      // 3. Nội dung bên dưới hiện dần ra
+      .to(".cover-content", { y: -100, opacity: 0, duration: 0.4 }, "<")
+      .to(coverRef.value, { y: "-100%", duration: 1.2, ease: "power4.inOut" }) // Trượt nhanh
       .fromTo(
         innerRef.value,
-        { scale: 0.92, filter: "brightness(0.5)" },
-        {
-          scale: 1,
-          filter: "brightness(1)",
-          duration: 1.5,
-          ease: "power2.inOut",
-        },
-        "<",
+        { scale: 0.8, rotation: -2 },
+        { scale: 1, rotation: 0, duration: 1.2, ease: "elastic.out(1, 0.5)" },
+        "-=0.8",
       )
-
-      // 4. Các dòng chữ bên trong bay lên
       .from(
         contentElementsRef.value!.children,
-        {
-          y: 30,
-          opacity: 0,
-          duration: 1,
-          stagger: 0.1,
-          ease: "back.out(1.2)",
-        },
-        "-=0.5",
+        { y: 50, opacity: 0, duration: 0.8, stagger: 0.1, ease: "back.out(2)" },
+        "-=0.8",
       )
-
-      // 5. Hiện nút Đóng (X)
       .to(closeButtonRef.value, {
         opacity: 1,
         scale: 1,
         pointerEvents: "auto",
-        duration: 0.5,
+        duration: 0.4,
       });
   }, containerRef.value!);
 });
@@ -99,15 +114,15 @@ onUnmounted(() => ctx?.revert());
     <div
       ref="closeButtonRef"
       @click="closeInvitation"
-      class="absolute top-4 right-4 z-50 cursor-pointer opacity-0 scale-50 pointer-events-none p-2 rounded-full bg-[#3E2723]/80 border-2 border-[#FFF8DC] hover:bg-[#5D4037] active:scale-90 transition-transform shadow-cartoon"
+      class="absolute top-6 right-6 z-50 cursor-pointer opacity-0 scale-50 pointer-events-none p-2 rounded-full bg-[#3E2723] border-2 border-[#FFD54F] hover:bg-[#5D4037] active:scale-90 transition-transform shadow-cartoon text-[#FFD54F]"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
-        stroke-width="3"
-        stroke="#FFF8DC"
-        class="w-5 h-5 md:w-8 md:h-8"
+        stroke-width="4"
+        stroke="currentColor"
+        class="w-6 h-6 md:w-8 md:h-8"
       >
         <path
           stroke-linecap="round"
@@ -122,122 +137,123 @@ onUnmounted(() => ctx?.revert());
       class="absolute inset-0 z-0 flex flex-col items-center justify-center bg-[#FFFBF0]"
       :style="{ backgroundImage: `url('${paperTexture}')` }"
     >
-      <!-- <div
-        class="absolute top-6 left-6 w-8 h-8 md:w-12 md:h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-lg"
+      <div
+        class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-xl"
       ></div>
       <div
-        class="absolute top-6 right-6 w-8 h-8 md:w-12 md:h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-lg"
+        class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-xl"
       ></div>
       <div
-        class="absolute bottom-6 left-6 w-8 h-8 md:w-12 md:h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-lg"
+        class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-xl"
       ></div>
       <div
-        class="absolute bottom-6 right-6 w-8 h-8 md:w-12 md:h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-lg"
-      ></div> -->
+        class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-xl"
+      ></div>
 
       <div
         ref="contentElementsRef"
-        class="relative z-10 flex h-full w-full max-w-md flex-col items-center justify-between px-8 py-14 text-center text-[#5d4037] md:h-auto md:justify-center md:space-y-5 md:py-16"
+        class="relative z-10 flex flex-col items-center text-center space-y-3 md:space-y-5 px-6 md:px-0 w-full max-w-md text-[#5d4037]"
       >
-        <div class="shrink-0">
+        <div>
           <p
-            class="text-[10px] md:text-sm uppercase tracking-[2px] mb-1 font-bold"
+            class="text-xs md:text-sm uppercase tracking-[2px] mb-1 font-bold opacity-70"
           >
             Trân trọng kính mời
           </p>
-          <h2 class="text-xs md:text-base italic">
-            Tới dự lễ Vu Quy của hai con chúng tôi
+          <h2 class="text-sm md:text-base font-bold">
+            Tới dự {{ data.ceremonyTitle }} của hai con chúng tôi
           </h2>
         </div>
 
         <div
-          class="shrink-0 text-4xl md:text-6xl text-[#b8860b] leading-tight py-1 font-patrick font-bold drop-shadow-sm"
+          class="text-4xl md:text-6xl text-[#b8860b] leading-tight py-2 font-patrick font-bold drop-shadow-sm transform -rotate-2"
         >
-          Phương Huyền <br />
-          <span class="text-2xl md:text-3xl text-[#5d4037]">&</span> <br />
-          Văn Hiếu
+          <span class="block">{{ data.mainName1 }}</span>
+          <span class="text-2xl md:text-4xl text-[#3E2723] inline-block my-1"
+            >&</span
+          >
+          <span class="block">{{ data.mainName2 }}</span>
         </div>
 
         <div
-          class="shrink-0 w-full border-y-2 border-[#b8860b]/30 py-2 md:py-3 bg-[#b8860b]/10 rounded-lg"
+          class="w-full border-2 border-[#3E2723] py-3 bg-[#FFECB3] rounded-xl shadow-cartoon relative overflow-hidden"
         >
-          <div class="mb-1 border-b border-[#b8860b]/20 pb-1 md:mb-2 md:pb-2">
+          <div
+            class="absolute top-0 left-0 w-full h-2 bg-[#FFF8E1] opacity-50"
+          ></div>
+          <div class="mb-2 border-b-2 border-[#3E2723]/20 pb-2 border-dashed">
             <div
-              class="text-2xl md:text-5xl font-bold text-[#7f1d1d] tracking-widest font-patrick"
+              class="text-3xl md:text-5xl font-bold text-[#BF360C] tracking-widest font-patrick"
             >
-              22 . 02 . 2026
+              {{ data.date }}
             </div>
             <p
-              class="text-[9px] md:text-xs uppercase tracking-widest font-bold mt-1"
+              class="text-[10px] md:text-xs uppercase tracking-widest font-bold mt-1 opacity-80"
             >
-              (Tức ngày 06 tháng 01 năm Bính Ngọ)
+              {{ data.lunarDate }}
             </p>
           </div>
 
-          <div class="flex flex-col space-y-1 mt-2 px-2 md:px-4">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-1 md:space-x-2">
-                <span class="text-[#b8860b] text-xs">❤</span>
-                <span class="font-bold text-xs md:text-base uppercase"
-                  >Bữa cơm thân mật:</span
+          <div class="flex flex-col space-y-2 mt-2 px-4">
+            <div
+              class="flex justify-between items-center bg-white/40 p-1.5 rounded-lg"
+            >
+              <div class="flex items-center space-x-2">
+                <span class="text-lg">{{ data.time1.icon }}</span>
+                <span class="font-bold text-xs md:text-sm uppercase"
+                  >{{ data.time1.label }}:</span
                 >
               </div>
               <span
-                class="font-patrick text-lg md:text-2xl font-bold text-[#3E2723]"
-                >09:00</span
+                class="font-patrick text-xl md:text-2xl font-bold text-[#3E2723]"
+                >{{ data.time1.value }}</span
               >
             </div>
 
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-1 md:space-x-2">
-                <span class="text-[#b8860b] text-xs">❤</span>
-                <span class="font-bold text-xs md:text-base uppercase"
-                  >Lễ Vu Quy:</span
+            <div
+              class="flex justify-between items-center bg-white/40 p-1.5 rounded-lg"
+            >
+              <div class="flex items-center space-x-2">
+                <span class="text-lg">{{ data.time2.icon }}</span>
+                <span class="font-bold text-xs md:text-sm uppercase"
+                  >{{ data.time2.label }}:</span
                 >
               </div>
               <span
-                class="font-patrick text-lg md:text-2xl font-bold text-[#3E2723]"
-                >11:30</span
+                class="font-patrick text-xl md:text-2xl font-bold text-[#D84315]"
+                >{{ data.time2.value }}</span
               >
             </div>
           </div>
         </div>
 
-        <div class="shrink-0">
+        <div>
           <p
-            class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-0.5"
+            class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-1 bg-[#FFD54F] inline-block px-2 py-0.5 rounded-md border border-[#3E2723] shadow-sm transform rotate-1"
           >
-            Tại Tư Gia Nhà Gái
+            {{ data.locationTitle }}
           </p>
-          <p class="text-[11px] md:text-sm italic">
-            TDP Tân Tiến - Xã Kiến Xương - Hưng Yên
+          <p class="text-sm md:text-base font-patrick mt-1 font-bold">
+            {{ data.address }}
           </p>
-        </div>
-
-        <div class="shrink-0">
-          <p
-            class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-0.5"
+          <a
+            v-if="data.mapLink"
+            :href="data.mapLink"
+            target="_blank"
+            class="inline-block mt-2 text-[10px] uppercase font-bold text-white bg-[#5D4037] px-3 py-1 rounded-full hover:bg-[#3E2723] transition-colors shadow-sm"
+            >📍 Xem bản đồ</a
           >
-            Nhà Trai
-          </p>
-          <p class="text-[11px] md:text-sm italic">
-            Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên
-          </p>
         </div>
 
         <div
-          class="shrink-0 w-full grid grid-cols-2 gap-4 text-[9px] md:text-xs uppercase tracking-wide border-t-2 border-[#b8860b]/30 pt-2 opacity-80"
+          class="w-full grid grid-cols-2 gap-4 text-[10px] md:text-xs uppercase tracking-wide border-t-2 border-[#3E2723]/20 pt-3 opacity-90 font-bold"
         >
           <div class="text-left">
-            <span class="font-bold block text-[#7f1d1d] mb-0.5 md:mb-1"
-              >Nhà Gái</span
-            >
+            <span class="block text-[#BF360C] mb-1">Nhà Gái</span>
             <p>Mẹ: Phạm Thị Báu</p>
           </div>
           <div class="text-right">
-            <span class="font-bold block text-[#7f1d1d] mb-0.5 md:mb-1"
-              >Nhà Trai</span
-            >
+            <span class="block text-[#BF360C] mb-1">Nhà Trai</span>
             <p>Bố: Lều Văn Toàn</p>
             <p>Mẹ: Vũ Thị Thuỷ</p>
           </div>
@@ -256,7 +272,7 @@ onUnmounted(() => ctx?.revert());
           alt="Cover"
         />
         <div
-          class="absolute inset-0 bg-linear-to-b from-[#3E2723]/20 via-transparent to-[#3E2723]/60 mix-blend-multiply"
+          class="absolute inset-0 bg-linear-to-b from-[#3E2723]/20 via-transparent to-[#3E2723]/70 mix-blend-multiply"
         ></div>
       </div>
 
@@ -266,38 +282,48 @@ onUnmounted(() => ctx?.revert());
         <img
           src="/images/title.png"
           alt="Phương Huyền & Văn Hiếu"
-          class="w-[85%] md:w-[70%] object-contain drop-shadow-xl animate-float-slow"
+          class="w-[90%] md:w-[70%] object-contain drop-shadow-xl animate-float-slow"
         />
       </div>
 
       <div
-        ref="openButtonRef"
-        @click="openInvitation"
-        class="relative z-30 mb-8 flex flex-col items-center cursor-pointer animate-bounce-slow w-full hover:scale-105 transition-transform"
+        class="cover-actions relative z-30 mb-12 flex flex-col w-full px-10 space-y-4"
       >
-        <div
-          class="w-[6vh] h-[6vh] rounded-full bg-[#FFD54F] border-[0.5vh] border-[#3E2723] flex items-center justify-center shadow-cartoon-heavy relative z-10"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="4"
-            stroke="#3E2723"
-            class="w-[3vh] h-[3vh] animate-pulse"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4.5 15.75l7.5-7.5 7.5 7.5"
-            />
-          </svg>
-        </div>
         <p
-          class="text-[#FFD54F] font-pangolin text-sm mt-2 font-bold shadow-black drop-shadow-md tracking-wider"
+          class="text-[#FFD54F] font-pangolin text-xs text-center font-bold shadow-black drop-shadow-md tracking-wider mb-2"
         >
-          MỞ THIỆP
+          CHỌN THIỆP ĐỂ MỞ
         </p>
+
+        <button
+          @click="openFor('bride')"
+          class="group w-full relative bg-[#FFF176] border-2 border-[#3E2723] rounded-xl py-3 shadow-cartoon active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+        >
+          <div class="flex items-center justify-center space-x-2">
+            <span class="text-xl group-hover:scale-125 transition-transform"
+              >🌸</span
+            >
+            <span
+              class="font-patrick text-lg font-bold text-[#3E2723] uppercase"
+              >Khách Nhà Gái</span
+            >
+          </div>
+        </button>
+
+        <button
+          @click="openFor('groom')"
+          class="group w-full relative bg-[#81C784] border-2 border-[#1B5E20] rounded-xl py-3 shadow-[4px_4px_0px_#1B5E20] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+        >
+          <div class="flex items-center justify-center space-x-2">
+            <span class="text-xl group-hover:scale-125 transition-transform"
+              >🐻</span
+            >
+            <span
+              class="font-patrick text-lg font-bold text-[#1B5E20] uppercase"
+              >Khách Nhà Trai</span
+            >
+          </div>
+        </button>
       </div>
     </div>
   </div>
@@ -313,20 +339,15 @@ onUnmounted(() => ctx?.revert());
   font-family: "Patrick Hand", cursive;
 }
 
-/* Bóng đổ khối cho các element */
+/* Bóng đổ khối chuẩn Cartoon */
 .shadow-cartoon {
   box-shadow: 4px 4px 0px #3e2723;
 }
-.shadow-cartoon-heavy {
-  box-shadow: 0.6vh 0.6vh 0px #261410;
-}
 
-/* Animation nảy chậm */
-.animate-bounce-slow {
-  animation: bounce 2s infinite;
+/* Animation nổi nhẹ */
+.animate-float-slow {
+  animation: float 4s ease-in-out infinite;
 }
-
-/* Animation nhấp nhô nhẹ cho logo */
 @keyframes float {
   0%,
   100% {
@@ -335,8 +356,5 @@ onUnmounted(() => ctx?.revert());
   50% {
     transform: translateY(-10px);
   }
-}
-.animate-float-slow {
-  animation: float 4s ease-in-out infinite;
 }
 </style>
