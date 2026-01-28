@@ -18,6 +18,11 @@ useHead({
   ],
   link: [
     {
+      rel: "icon",
+      type: "image/svg+xml",
+      href: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>",
+    },
+    {
       rel: "preload",
       as: "video",
       href: "/video/loading.mp4",
@@ -40,6 +45,7 @@ const assetsToPreload = [
   "/images/cover-anime.jpg",
   "/images/cover.jpg",
   "/images/title.png",
+  "/images/404.png",
   "https://www.transparenttextures.com/patterns/cream-paper.png",
 ];
 
