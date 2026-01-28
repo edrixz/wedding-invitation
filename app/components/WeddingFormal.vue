@@ -41,22 +41,54 @@ const WEDDING_DATA = {
 const data = computed(() => WEDDING_DATA[props.side]);
 const isOpened = ref(false);
 
-// --- Gyroscope Logic ---
-let targetAngle = 135;
-let currentAngle = 135;
+// --- LOGIC PHẢN XẠ ÁNH SÁNG MỚI (Dựa trên Position X/Y) ---
+// Giá trị đích (Target)
+let targetX = 50; // %
+let targetY = 50; // %
+
+// Giá trị hiện tại (Current - dùng để lerp cho mượt)
+let currentX = 50;
+let currentY = 50;
 let animationFrameId: number;
 
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+  // Gamma (Trái/Phải): -90 đến 90.
+  // Ta map khoảng -45 đến 45 thành 0% đến 100% position X
   const gamma = event.gamma || 0;
+  // Beta (Trước/Sau): -180 đến 180. Trừ 45 độ (góc cầm tay).
+  // Ta map khoảng -45 đến 45 thành 0% đến 100% position Y
   const beta = (event.beta || 0) - 45;
-  const angleRad = Math.atan2(gamma, beta);
-  targetAngle = 135 - angleRad * (180 / Math.PI);
+
+  // Công thức Map: (Value + Max) / (Max * 2) * 100
+  // Đảo ngược dấu (-) ở gamma để nghiêng trái thì sáng chạy sang trái (tự nhiên hơn)
+  targetX = 50 + gamma * 1.5;
+  targetY = 50 + beta * 1.5;
+
+  // Clamp giá trị trong khoảng 0-100 để không bị vỡ background
+  targetX = Math.max(0, Math.min(100, targetX));
+  targetY = Math.max(0, Math.min(100, targetY));
+};
+
+// Fallback chuột (cho Desktop)
+const handleMouseMove = (event: MouseEvent) => {
+  const { innerWidth, innerHeight } = window;
+  const x = event.clientX / innerWidth;
+  const y = event.clientY / innerHeight;
+
+  // Map chuột 0-1 thành 0-100%
+  targetX = x * 100;
+  targetY = y * 100;
 };
 
 const updateLightLoop = () => {
-  currentAngle += (targetAngle - currentAngle) * 0.1;
+  // Lerp để chuyển động mượt mà (Hệ số 0.08)
+  currentX += (targetX - currentX) * 0.08;
+  currentY += (targetY - currentY) * 0.08;
+
   if (containerRef.value) {
-    containerRef.value.style.setProperty("--shine-angle", `${currentAngle}deg`);
+    // Cập nhật biến CSS --shine-x và --shine-y
+    containerRef.value.style.setProperty("--shine-x", `${currentX}%`);
+    containerRef.value.style.setProperty("--shine-y", `${currentY}%`);
   }
   animationFrameId = requestAnimationFrame(updateLightLoop);
 };
@@ -80,17 +112,15 @@ const closeInvitation = () => {
   if (tl) tl.reverse();
 };
 
-// EXPOSE API CHO WRAPPER
-defineExpose({
-  isOpened,
-  closeInvitation,
-});
+defineExpose({ isOpened, closeInvitation });
 
 onMounted(() => {
+  updateLightLoop(); // Chạy loop ngay lập tức
+
   if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", handleDeviceOrientation, true);
-    updateLightLoop();
   }
+  window.addEventListener("mousemove", handleMouseMove);
 
   ctx = gsap.context(() => {
     tl = gsap.timeline({
@@ -131,8 +161,9 @@ onMounted(() => {
 onUnmounted(() => {
   if (window.DeviceOrientationEvent) {
     window.removeEventListener("deviceorientation", handleDeviceOrientation);
-    cancelAnimationFrame(animationFrameId);
   }
+  window.removeEventListener("mousemove", handleMouseMove);
+  cancelAnimationFrame(animationFrameId);
   ctx?.revert();
 });
 </script>
@@ -141,7 +172,7 @@ onUnmounted(() => {
   <div
     ref="containerRef"
     class="relative h-dvh w-full overflow-hidden bg-[#FFFBF0] font-serif text-[#3E2723]"
-    style="--shine-angle: 135deg"
+    style="--shine-x: 50%; --shine-y: 50%"
   >
     <div
       class="pointer-events-none fixed inset-0 z-9999 opacity-40 mix-blend-multiply"
@@ -184,7 +215,7 @@ onUnmounted(() => {
 
       <div
         ref="contentElementsRef"
-        class="relative z-10 flex h-full w-full max-w-md flex-col items-center justify-between px-6 py-12 text-center md:py-16"
+        class="relative z-10 flex h-full w-full flex-col items-center justify-between px-6 py-12 text-center md:py-16"
       >
         <div class="shrink-0">
           <p
@@ -382,41 +413,61 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Không cần import font ở đây nữa */
+/* LOGIC MỚI: 
+  - Dùng linear-gradient chéo (135deg).
+  - Background size cực lớn (250%).
+  - Di chuyển background-position theo biến --shine-x và --shine-y
+*/
+
+/* Red Foil (Cho bìa) */
 .red-foil-text {
   background-image: linear-gradient(
-    var(--shine-angle, 135deg),
-    #880e4f 0%,
-    #d32f2f 30%,
-    #ffcdd2 48%,
-    #ffcdd2 52%,
-    #d32f2f 70%,
+    135deg,
+    /* Góc cố định */ #880e4f 0%,
+    #880e4f 20%,
+    #d32f2f 40%,
+    #ffcdd2 50%,
+    /* Vệt sáng trắng hồng ở giữa */ #d32f2f 60%,
+    #880e4f 80%,
     #880e4f 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 2px 0px rgba(255, 255, 255, 0.3));
-  background-size: 200% auto;
-  will-change: background-image;
+
+  /* Quan trọng: Size lớn để có chỗ cho position di chuyển */
+  background-size: 250% 250%;
+
+  /* Nhận giá trị từ JS */
+  background-position: var(--shine-x, 50%) var(--shine-y, 50%);
+
+  /* Tối ưu hiệu năng */
+  will-change: background-position;
 }
+
+/* Gold Foil (Cho nội dung bên trong) */
 .gold-foil-text {
   background-image: linear-gradient(
-    var(--shine-angle, 135deg),
+    135deg,
     #8a6e2f 0%,
-    #e3d278 20%,
-    #ffffe0 48%,
-    #ffffe0 52%,
-    #e3d278 80%,
+    #8a6e2f 20%,
+    #e3d278 40%,
+    #ffffe0 50%,
+    /* Vệt sáng vàng nhạt ở giữa */ #e3d278 60%,
+    #8a6e2f 80%,
     #8a6e2f 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 1px 0px rgba(139, 114, 55, 0.4));
-  background-size: 200% auto;
-  will-change: background-image;
+
+  background-size: 250% 250%;
+  background-position: var(--shine-x, 50%) var(--shine-y, 50%);
+  will-change: background-position;
 }
+
 .animate-pulse-slow {
   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
