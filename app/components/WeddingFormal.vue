@@ -196,7 +196,7 @@ onUnmounted(() => {
     style="--shine-x: 50%; --shine-y: 50%"
   >
     <div
-      class="pointer-events-none fixed inset-0 z-9999 opacity-40 mix-blend-multiply"
+      class="pointer-events-none absolute inset-0 z-9999 opacity-40 mix-blend-multiply"
       style="
         background-image: url(&quot;https://www.transparenttextures.com/patterns/cream-paper.png&quot;);
       "
@@ -231,12 +231,12 @@ onUnmounted(() => {
         class="pointer-events-none absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/ornament.png')] opacity-10"
       ></div>
       <div
-        class="pointer-events-none absolute inset-3 border-4 border-double border-yellow-700/40 md:inset-8"
+        class="pointer-events-none absolute inset-3 border-4 border-double border-yellow-700/40"
       ></div>
 
       <div
         ref="contentElementsRef"
-        class="relative z-10 flex h-full w-full flex-col items-center justify-between px-6 py-12 text-center md:py-16"
+        class="relative z-10 flex h-full w-full flex-col items-center justify-between px-6 py-12 text-center"
       >
         <div class="shrink-0">
           <p
@@ -250,14 +250,10 @@ onUnmounted(() => {
         </div>
 
         <div
-          class="font-great-vibes shrink-0 py-1 text-5xl leading-tight drop-shadow-sm md:py-2 md:text-7xl"
+          class="font-great-vibes shrink-0 py-1 text-5xl leading-tight drop-shadow-sm md:py-2"
         >
           <div class="gold-foil-text pb-1">{{ data.mainName1 }}</div>
-          <div
-            class="font-serif text-xl text-[#B8860B] italic md:text-3xl my-1"
-          >
-            &
-          </div>
+          <div class="font-serif text-xl text-[#B8860B] italic my-1">&</div>
           <div class="gold-foil-text pb-1">{{ data.mainName2 }}</div>
         </div>
 
@@ -272,7 +268,7 @@ onUnmounted(() => {
               class="mb-2 border-b border-yellow-700/30 pb-2 md:mb-3 md:pb-3"
             >
               <div
-                class="font-cinzel text-2xl font-bold tracking-[0.15em] text-red-900 md:text-5xl"
+                class="font-cinzel text-2xl font-bold tracking-[0.15em] text-red-900 md:text-3xl"
               >
                 {{ data.date }}
               </div>
@@ -309,7 +305,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="shrink-0 space-y-1 md:space-y-2">
+        <div class="shrink-0 space-y-1 md:space-y-2 md:py-3">
           <p
             class="font-wedding-1 mb-0.5 text-xs font-bold uppercase text-[#3e2723] md:mb-1 md:text-base"
           >

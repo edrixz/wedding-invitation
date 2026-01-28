@@ -3,10 +3,7 @@ import { ref, computed } from "vue";
 import WeddingCartoon from "./WeddingCartoon.vue";
 import WeddingFormal from "./WeddingFormal.vue";
 
-const props = defineProps<{
-  side: "bride" | "groom";
-}>();
-
+const props = defineProps<{ side: "bride" | "groom" }>();
 const currentStyle = ref("formal");
 const isSwitching = ref(false);
 const isCartoon = computed(() => currentStyle.value === "cartoon");
@@ -15,14 +12,10 @@ const activeComponentRef = ref<any>(null);
 const toggleStyle = async () => {
   if (isSwitching.value) return;
   isSwitching.value = true;
-
-  // 1. Nếu đang mở -> Ra lệnh đóng và chờ
   if (activeComponentRef.value && activeComponentRef.value.isOpened) {
     activeComponentRef.value.closeInvitation();
-    await new Promise((resolve) => setTimeout(resolve, 1800)); // Chờ animation đóng xong (1.8s)
+    await new Promise((resolve) => setTimeout(resolve, 1800));
   }
-
-  // 2. Chuyển đổi Style
   const nextStyle = isCartoon.value ? "formal" : "cartoon";
   try {
     const img = new Image();
@@ -32,10 +25,7 @@ const toggleStyle = async () => {
   } catch (e) {
     console.warn("Preload failed", e);
   }
-
   currentStyle.value = nextStyle;
-
-  // 3. Kết thúc chuyển đổi
   setTimeout(() => {
     isSwitching.value = false;
   }, 600);
@@ -43,8 +33,8 @@ const toggleStyle = async () => {
 </script>
 
 <template>
-  <div class="relative w-full h-dvh overflow-hidden bg-black">
-    <div class="fixed top-5 left-5 z-9999">
+  <div class="relative w-full h-full overflow-hidden bg-black">
+    <div class="absolute top-5 left-5 z-9999">
       <button
         @click="toggleStyle"
         :disabled="isSwitching"
@@ -76,7 +66,9 @@ const toggleStyle = async () => {
             class="transform transition-transform duration-500"
             :class="isCartoon ? 'rotate-12 scale-90' : 'scale-75'"
           >
+            <span v-if="isCartoon" class="text-[10px] leading-none">🐣</span>
             <svg
+              v-else
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
               viewBox="0 0 24 24"

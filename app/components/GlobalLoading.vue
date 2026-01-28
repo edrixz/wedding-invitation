@@ -14,11 +14,9 @@ const onVideoCanPlay = () => {
 };
 
 onMounted(() => {
-  // 1. Kiểm tra Cache
   if (videoRef.value && videoRef.value.readyState >= 3) {
     isVideoPlaying.value = true;
   } else {
-    // 2. Nếu chưa có Cache, đợi 200ms mới hiện ảnh thumb loading
     setTimeout(() => {
       if (!isVideoPlaying.value) {
         showThumb.value = true;
@@ -30,7 +28,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="fixed inset-0 z-99999 flex flex-col items-center justify-center bg-white text-[#3E2723]"
+    class="absolute inset-0 z-99999 flex flex-col items-center justify-center bg-white text-[#3E2723]"
   >
     <div
       class="relative mb-4 w-40 h-40 md:w-56 md:h-56 flex items-center justify-center"

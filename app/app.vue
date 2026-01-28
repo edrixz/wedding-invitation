@@ -23,6 +23,10 @@ useHead({
       href: "/video/loading.mp4",
       type: "video/mp4",
     },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap",
+    },
   ],
 });
 
@@ -75,17 +79,25 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="antialiased">
-    <Transition name="fade" mode="out-in">
-      <GlobalLoading v-if="isLoading" :progress="loadProgress" />
-    </Transition>
-    <div v-show="!isLoading">
-      <NuxtPage />
+  <div
+    class="antialiased w-full h-dvh bg-zinc-900 flex justify-center items-center overflow-hidden"
+  >
+    <div
+      class="relative w-full max-w-97.5 h-full bg-[#FFFBF0] shadow-2xl overflow-hidden"
+    >
+      <Transition name="fade" mode="out-in">
+        <GlobalLoading v-if="isLoading" :progress="loadProgress" />
+      </Transition>
+
+      <div v-show="!isLoading" class="h-full w-full">
+        <NuxtPage />
+      </div>
     </div>
   </div>
 </template>
 
 <style>
+/* Reset css */
 html,
 body,
 #__nuxt {
@@ -93,7 +105,7 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #fffbf0;
+  background-color: #18181b; /* Màu nền zinc-900 */
 }
 .fade-enter-active,
 .fade-leave-active {
