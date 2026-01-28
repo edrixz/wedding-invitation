@@ -305,7 +305,7 @@ onUnmounted(() => {
       </div>
 
       <div
-        class="cover-content relative z-30 flex w-full flex-col items-center bg-linear-to-b from-white via-white/80 to-transparent px-4 pb-12 pt-16 text-center backdrop-blur-[3px]"
+        class="cover-content relative z-30 flex w-full flex-col items-center bg-linear-to-b from-white via-white/80 to-transparent px-4 pb-12 pt-10 text-center backdrop-blur-[3px]"
         style="
           mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
           -webkit-mask-image: linear-gradient(
@@ -316,19 +316,17 @@ onUnmounted(() => {
         "
       >
         <div class="mb-2 flex items-center justify-center space-x-4">
-          <div class="h-px w-8 bg-red-800"></div>
           <h2
             class="font-cinzel text-xs font-bold uppercase tracking-[4px] text-red-800"
           >
             Thiệp Mời
           </h2>
-          <div class="h-px w-8 bg-red-800"></div>
         </div>
         <div
           class="relative flex flex-col items-center justify-center py-4 text-red-800"
         >
           <span
-            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-[#B8860B] opacity-20 blur-[1px]"
+            class="font-serif absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-[#B8860B] opacity-20 blur-[1px]"
             >&</span
           >
           <span
