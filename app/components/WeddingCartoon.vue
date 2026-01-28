@@ -133,19 +133,6 @@ onUnmounted(() => ctx?.revert());
       :style="{ backgroundImage: `url('${paperTexture}')` }"
     >
       <div
-        class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-xl"
-      ></div>
-      <div
-        class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-xl"
-      ></div>
-      <div
-        class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-xl"
-      ></div>
-      <div
-        class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-xl"
-      ></div>
-
-      <div
         ref="contentElementsRef"
         class="relative z-10 flex flex-col items-center text-center space-y-3 md:space-y-5 px-6 md:px-0 w-full max-w-md text-[#5d4037]"
       >

@@ -3,9 +3,14 @@ import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
 // 1. ĐỊNH NGHĨA PROPS
-const props = defineProps<{
-  side: "bride" | "groom"; // Bắt buộc truyền vào
-}>();
+const props = withDefaults(
+  defineProps<{
+    side?: "bride" | "groom";
+  }>(),
+  {
+    side: "bride",
+  },
+);
 
 // --- CẤU HÌNH DỮ LIỆU ---
 const WEDDING_DATA = {

@@ -45,7 +45,7 @@ const loadProgress = computed(() => Math.floor(rawProgress.value));
 const assetsToPreload = [
   "/images/loading-thumb.jpg",
   "/images/cover-anime.jpg",
-  "/images/cover.jpg", // Sửa từ cover-real.jpg thành cover.jpg
+  "/images/cover.jpg",
   "/images/title.png",
   "https://www.transparenttextures.com/patterns/cream-paper.png",
 ];

@@ -3,17 +3,14 @@ import { ref, computed } from "vue";
 import WeddingCartoon from "./WeddingCartoon.vue";
 import WeddingFormal from "./WeddingFormal.vue";
 
-// 1. Nhận thông tin phe nào (bride/groom)
 const props = defineProps<{
   side: "bride" | "groom";
 }>();
 
-// 2. Quản lý Style (Mặc định Formal)
 const currentStyle = ref("formal");
 const isSwitching = ref(false);
 const isCartoon = computed(() => currentStyle.value === "cartoon");
 
-// 3. Hàm chuyển đổi Style (Có preload ảnh)
 const toggleStyle = async () => {
   if (isSwitching.value) return;
 
@@ -21,30 +18,35 @@ const toggleStyle = async () => {
   isSwitching.value = true;
 
   try {
+    // Preload ảnh của style tiếp theo để tránh nháy hình
     const img = new Image();
     img.src =
       nextStyle === "formal" ? "/images/cover.jpg" : "/images/cover-anime.jpg";
-    await img.decode(); // Đợi giải mã ảnh xong để tránh giật
+    await img.decode();
   } catch (e) {
     console.warn("Preload failed", e);
   }
 
   currentStyle.value = nextStyle;
-  isSwitching.value = false;
+
+  // Đợi animation chạy xong mới cho bấm tiếp
+  setTimeout(() => {
+    isSwitching.value = false;
+  }, 600);
 };
 </script>
 
 <template>
-  <div class="relative w-full h-full">
-    <div class="fixed top-4 left-4 z-9999">
+  <div class="relative w-full h-dvh overflow-hidden bg-black">
+    <div class="fixed top-5 left-5 z-9999">
       <button
         @click="toggleStyle"
         :disabled="isSwitching"
-        class="group relative flex items-center cursor-pointer outline-none select-none w-14 h-8 rounded-full transition-all duration-500 ease-in-out"
+        class="group relative flex items-center cursor-pointer outline-none select-none w-14 h-8 rounded-full transition-all duration-500 ease-in-out shadow-lg hover:scale-105"
         :class="[
           !isCartoon
-            ? 'bg-red-950/80 border border-yellow-700/40 backdrop-blur-sm shadow-sm'
-            : 'bg-[#FFD54F] border-2 border-[#3E2723] shadow-[2px_2px_0px_#3E2723]',
+            ? 'bg-red-950/90 border border-yellow-700/60'
+            : 'bg-[#FFD54F] border-2 border-[#3E2723]',
         ]"
       >
         <div
@@ -61,7 +63,7 @@ const toggleStyle = async () => {
           class="absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-500 cubic-bezier flex items-center justify-center z-10 shadow-sm"
           :class="[
             !isCartoon
-              ? 'left-1 w-6 h-6 bg-linear-to-br from-yellow-50 to-yellow-600 border border-white/20'
+              ? 'left-1 w-6 h-6 bg-linear-to-br from-yellow-100 to-yellow-600 border border-white/20'
               : 'left-[calc(100%-1.6rem)] w-5 h-5 bg-white border-2 border-[#3E2723]',
           ]"
         >
@@ -69,9 +71,7 @@ const toggleStyle = async () => {
             class="transform transition-transform duration-500"
             :class="isCartoon ? 'rotate-12 scale-90' : 'scale-75'"
           >
-            <span v-if="isCartoon" class="text-[10px] leading-none">🐣</span>
             <svg
-              v-else
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
               viewBox="0 0 24 24"
@@ -86,25 +86,54 @@ const toggleStyle = async () => {
       </button>
     </div>
 
-    <Transition name="fade-slow" mode="out-in">
+    <Transition name="switch-style">
       <component
         :is="isCartoon ? WeddingCartoon : WeddingFormal"
         :side="props.side"
+        :key="currentStyle"
+        class="absolute inset-0 w-full h-full"
       />
     </Transition>
   </div>
 </template>
 
 <style scoped>
-.fade-slow-enter-active,
-.fade-slow-leave-active {
-  transition: opacity 0.6s ease;
-}
-.fade-slow-enter-from,
-.fade-slow-leave-to {
-  opacity: 0;
-}
+/* Easing xịn cho chuyển động mượt */
 .cubic-bezier {
   transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ANIMATION CHUYỂN STYLE 
+  Logic: Component cũ mờ đi + zoom nhỏ lại. Component mới hiện lên + zoom từ to về bình thường.
+*/
+.switch-style-enter-active,
+.switch-style-leave-active {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute; /* Bắt buộc để chồng lên nhau */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* Trạng thái BẮT ĐẦU vào (Component Mới) */
+.switch-style-enter-from {
+  opacity: 0;
+  transform: scale(1.05) filter(blur(4px)); /* Hơi phóng to và mờ */
+  z-index: 2;
+}
+
+/* Trạng thái KẾT THÚC ra (Component Cũ) */
+.switch-style-leave-to {
+  opacity: 0;
+  transform: scale(0.95) filter(blur(2px)); /* Hơi thu nhỏ và mờ */
+  z-index: 1;
+}
+
+/* Trạng thái ổn định */
+.switch-style-enter-to,
+.switch-style-leave-from {
+  opacity: 1;
+  transform: scale(1) filter(blur(0));
 }
 </style>

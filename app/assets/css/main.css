@@ -1,11 +1,9 @@
 /* app/assets/css/main.css */
-@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap");
 
+/* 1. Tailwind bắt buộc đầu tiên */
 @import "tailwindcss";
 
-/* 2. SAU ĐÓ MỚI ĐẾN FONT-FACE */
+/* 2. Font Local (Tự host) */
 @font-face {
   font-family: "MyWeddingFont";
   src: url("/fonts/SVN-BonVoyage-Regular.otf") format("opentype");
@@ -14,7 +12,7 @@
   font-display: swap;
 }
 
-/* 3. CUỐI CÙNG LÀ CÁC CLASS CSS */
+/* 3. Utility Classes */
 .perspective-container {
   perspective: 1200px;
 }
