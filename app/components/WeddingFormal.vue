@@ -2,75 +2,79 @@
 import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
-// --- CẤU HÌNH DỮ LIỆU CHO 2 NHÀ ---
+// 1. ĐỊNH NGHĨA PROPS
+const props = defineProps<{
+  side: "bride" | "groom"; // Bắt buộc truyền vào
+}>();
+
+// --- CẤU HÌNH DỮ LIỆU ---
 const WEDDING_DATA = {
   bride: {
-    // NHÀ GÁI
     ceremonyTitle: "Lễ Vu Quy",
-    mainName1: "Phương Huyền", // Tên đứng trước
-    mainName2: "Văn Hiếu", // Tên đứng sau
+    mainName1: "Phương Huyền",
+    mainName2: "Văn Hiếu",
     date: "22.02.2026",
     lunarDate: "(Tức ngày 06 tháng 01 năm Bính Ngọ)",
     time1: { label: "Bữa Cơm Thân Mật", value: "09:00" },
-    time2: { label: "Lễ Vu Quy", value: "11:30" }, // Giờ đón dâu
+    time2: { label: "Lễ Vu Quy", value: "11:30" },
     locationTitle: "Tại Tư Gia Nhà Gái",
     address: "TDP Tân Tiến - Xã Kiến Xương - Hưng Yên",
-    mapLink: "#", // Link Google Map nhà gái
+    mapLink: "#",
   },
   groom: {
-    // NHÀ TRAI
     ceremonyTitle: "Lễ Thành Hôn",
-    mainName1: "Văn Hiếu", // Tên Chú rể đứng trước
-    mainName2: "Phương Huyền", // Tên Cô dâu đứng sau
+    mainName1: "Văn Hiếu",
+    mainName2: "Phương Huyền",
     date: "22.02.2026",
     lunarDate: "(Tức ngày 06 tháng 01 năm Bính Ngọ)",
-    time1: { label: "Tiệc Mừng", value: "10:30" },
-    time2: { label: "Lễ Thành Hôn", value: "12:00" }, // Giờ làm lễ
+    time1: { label: "Tiệc Mừng", value: "09:00" },
+    time2: { label: "Lễ Thành Hôn", value: "11:30" },
     locationTitle: "Tại Tư Gia Nhà Trai",
     address: "Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên",
-    mapLink: "#", // Link Google Map nhà trai
+    mapLink: "#",
   },
 };
 
-// State
+// State mở thiệp
 const isOpened = ref(false);
-const currentSide = ref<"bride" | "groom">("bride"); // Mặc định
 
-// Computed: Lấy dữ liệu dựa trên bên được chọn
-const data = computed(() => WEDDING_DATA[currentSide.value]);
+// Computed: Tự động lấy data theo Props truyền vào
+const data = computed(() => WEDDING_DATA[props.side]);
 
 // --- LOGIC VẬT LÝ ÁNH SÁNG (GYROSCOPE) ---
-const tiltAngle = ref(135);
+let targetAngle = 135;
+let currentAngle = 135;
+let animationFrameId: number;
+
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   const gamma = event.gamma || 0;
   const beta = (event.beta || 0) - 45;
+
   const angleRad = Math.atan2(gamma, beta);
-  tiltAngle.value = 135 - angleRad * (180 / Math.PI);
+  const angleDeg = angleRad * (180 / Math.PI);
+
+  targetAngle = 135 - angleDeg;
 };
 
-// Style Mạ Vàng Động
-const dynamicGoldStyle = computed(() => ({
-  backgroundImage: `linear-gradient(${tiltAngle.value}deg, #8a6e2f 0%, #e3d278 20%, #ffffe0 48%, #ffffe0 52%, #e3d278 80%, #8a6e2f 100%)`,
-  webkitBackgroundClip: "text",
-  backgroundClip: "text",
-  color: "transparent",
-  filter: "drop-shadow(0px 1px 0px rgba(139, 114, 55, 0.4))",
-  backgroundSize: "200% auto",
-  willChange: "background-image",
-}));
+const updateLightLoop = () => {
+  currentAngle += (targetAngle - currentAngle) * 0.1;
+  if (containerRef.value) {
+    containerRef.value.style.setProperty("--shine-angle", `${currentAngle}deg`);
+  }
+  animationFrameId = requestAnimationFrame(updateLightLoop);
+};
 
 // Refs & GSAP
 const containerRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
 const innerRef = ref<HTMLElement | null>(null);
 const contentElementsRef = ref<HTMLElement | null>(null);
+const openButtonRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLElement | null>(null);
 let ctx: gsap.Context;
 let tl: gsap.core.Timeline;
 
-// Hàm mở thiệp theo phe (Nhà Trai / Nhà Gái)
-const openFor = (side: "bride" | "groom") => {
-  currentSide.value = side; // Cập nhật state
+const openInvitation = () => {
   isOpened.value = true;
   if (tl) tl.play();
 };
@@ -82,6 +86,7 @@ const closeInvitation = () => {
 onMounted(() => {
   if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", handleDeviceOrientation, true);
+    updateLightLoop();
   }
 
   ctx = gsap.context(() => {
@@ -92,30 +97,23 @@ onMounted(() => {
       },
     });
 
-    // Animation mở thiệp
-    tl.to(".cover-actions", {
+    tl.to([openButtonRef.value, ".cover-content"], {
       opacity: 0,
-      scale: 0.9,
-      duration: 0.4,
+      scale: 0.95,
+      duration: 0.5,
       pointerEvents: "none",
+      ease: "power2.inOut",
     })
-      .to(".cover-content", { opacity: 0, y: -20, duration: 0.4 }, "<")
-      .to(coverRef.value, { y: "-100%", duration: 1.5, ease: "power3.inOut" })
+      .to(coverRef.value, { y: "-100%", duration: 1.8, ease: "power3.inOut" })
       .fromTo(
         innerRef.value,
         { scale: 0.95, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.2, ease: "power2.out" },
-        "-=1.0",
+        { scale: 1, opacity: 1, duration: 1.5, ease: "power2.out" },
+        "-=1.2",
       )
       .from(
         contentElementsRef.value!.children,
-        {
-          y: 30,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "back.out(1.2)",
-        },
+        { y: 20, opacity: 0, duration: 1, stagger: 0.15, ease: "power2.out" },
         "-=0.5",
       )
       .to(closeButtonRef.value, {
@@ -130,6 +128,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (window.DeviceOrientationEvent) {
     window.removeEventListener("deviceorientation", handleDeviceOrientation);
+    cancelAnimationFrame(animationFrameId);
   }
   ctx?.revert();
 });
@@ -138,8 +137,8 @@ onUnmounted(() => {
 <template>
   <div
     ref="containerRef"
-    class="relative h-dvh w-full overflow-hidden bg-[#1a0505] font-serif text-[#3E2723]"
-    style="--gold-angle: 135deg"
+    class="relative h-dvh w-full overflow-hidden bg-[#FFFBF0] font-serif text-[#3E2723]"
+    style="--shine-angle: 135deg"
   >
     <div
       class="pointer-events-none fixed inset-0 z-9999 opacity-40 mix-blend-multiply"
@@ -186,7 +185,7 @@ onUnmounted(() => {
       >
         <div class="shrink-0">
           <p
-            class="font-cinzel mb-1 text-[10px] uppercase tracking-[3px] text-yellow-700 md:mb-2 md:text-sm"
+            class="font-cinzel mb-1 text-[10px] uppercase text-yellow-700 md:mb-2 md:text-sm"
           >
             Trân trọng kính mời
           </p>
@@ -196,15 +195,15 @@ onUnmounted(() => {
         </div>
 
         <div
-          class="font-pinyon shrink-0 py-1 text-5xl leading-tight drop-shadow-sm md:py-2 md:text-7xl"
+          class="font-great-vibes shrink-0 py-1 text-5xl leading-tight drop-shadow-sm md:py-2 md:text-7xl"
         >
-          <div :style="dynamicGoldStyle" class="pb-1">{{ data.mainName1 }}</div>
+          <div class="gold-foil-text pb-1">{{ data.mainName1 }}</div>
           <div
             class="font-serif text-xl text-[#B8860B] italic md:text-3xl my-1"
           >
             &
           </div>
-          <div :style="dynamicGoldStyle" class="pb-1">{{ data.mainName2 }}</div>
+          <div class="gold-foil-text pb-1">{{ data.mainName2 }}</div>
         </div>
 
         <div
@@ -264,13 +263,13 @@ onUnmounted(() => {
           <p class="font-serif text-sm italic md:text-lg text-[#5d4037] px-4">
             {{ data.address }}
           </p>
-          <a
+          <!-- <a
             v-if="data.mapLink"
             :href="data.mapLink"
             target="_blank"
             class="inline-block mt-2 text-[10px] uppercase border border-[#B8860B] text-[#B8860B] px-3 py-1 rounded-full hover:bg-[#B8860B] hover:text-white transition-colors"
             >Xem bản đồ</a
-          >
+          > -->
         </div>
 
         <div
@@ -291,41 +290,45 @@ onUnmounted(() => {
 
     <div
       ref="coverRef"
-      class="will-change-transform absolute inset-0 z-20 flex h-full w-full flex-col justify-between overflow-hidden bg-[#1a0505] shadow-2xl"
+      class="will-change-transform absolute inset-0 z-20 flex h-full w-full flex-col justify-between overflow-hidden bg-white shadow-2xl"
     >
       <div class="absolute inset-0 z-0">
         <img
           src="/images/cover.jpg"
           class="h-full w-full object-cover"
           alt="Cover"
+          decoding="sync"
         />
       </div>
 
       <div
-        class="cover-content relative z-30 flex w-full flex-col items-center bg-linear-to-b from-white via-white/80 to-transparent px-4 pb-12 pt-16 text-center backdrop-blur-[2px]"
+        class="cover-content relative z-30 flex w-full flex-col items-center bg-linear-to-b from-white via-white/80 to-transparent px-4 pb-12 pt-8 text-center backdrop-blur-[3px]"
+        style="
+          mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+          -webkit-mask-image: linear-gradient(
+            to bottom,
+            black 60%,
+            transparent 100%
+          );
+        "
       >
         <div class="mb-2 flex items-center justify-center space-x-4">
-          <div class="h-px w-8 bg-red-800"></div>
           <h2
-            class="font-cinzel text-xs font-bold uppercase tracking-[4px] text-red-800"
+            class="font-wedding-1 text-xs font-bold uppercase tracking-[4px] text-red-800"
           >
             Thiệp Mời
           </h2>
-          <div class="h-px w-8 bg-red-800"></div>
         </div>
         <div
           class="relative flex flex-col items-center justify-center py-4 text-red-800"
         >
           <span
-            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-[#B8860B] opacity-20 blur-[1px]"
-            >&</span
+            class="font-great-vibes relative z-10 -mb-2 block text-5xl leading-normal px-2 red-foil-text"
+            >{{ data.mainName1 }}</span
           >
           <span
-            class="font-pinyon relative z-10 -mb-2 block text-5xl leading-normal"
-            >Phương Huyền</span
-          >
-          <span class="font-pinyon relative z-10 block text-5xl leading-normal"
-            >Văn Hiếu</span
+            class="font-great-vibes relative z-10 block text-5xl leading-normal px-2 red-foil-text"
+            >{{ data.mainName2 }}</span
           >
         </div>
         <p
@@ -336,34 +339,35 @@ onUnmounted(() => {
       </div>
 
       <div
-        class="cover-actions relative z-30 mb-12 flex flex-col items-center w-full px-8 space-y-4"
+        ref="openButtonRef"
+        @click="openInvitation"
+        class="group relative z-30 mb-8 flex w-full cursor-pointer flex-col items-center"
       >
         <p
-          class="font-cinzel text-[10px] uppercase tracking-widest text-white mb-2 opacity-90 drop-shadow-md"
+          class="font-cinzel mb-2 text-[9px] font-bold uppercase tracking-[3px] text-yellow-400 opacity-80 transition-all group-hover:tracking-[4px] group-hover:opacity-100 md:text-[10px]"
         >
-          Trân trọng kính mời
+          Chạm để mở
         </p>
-
-        <div class="flex flex-col w-full max-w-xs space-y-3">
-          <button
-            @click="openFor('bride')"
-            class="group relative w-full overflow-hidden rounded-full border-2 border-[#B8860B] bg-[#FFF8E1] py-3.5 text-[#991B1B] shadow-xl transition-all hover:bg-[#B8860B] hover:text-white hover:border-[#FFF8E1] active:scale-95"
+        <div
+          class="animate-pulse-slow relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-800 bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-red-800 md:h-14 md:w-14"
+        >
+          <div
+            class="absolute inset-1 scale-90 rounded-full border border-red-800/40 transition-transform duration-500 group-hover:scale-100 group-hover:border-white"
+          ></div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="#991B1B"
+            class="h-5 w-5 transition-transform duration-500 group-hover:translate-y-0.5 group-hover:stroke-white md:h-7 md:w-7"
           >
-            <span
-              class="font-cinzel text-sm font-bold uppercase tracking-[2px] group-hover:tracking-[3px] transition-all"
-              >Khách Nhà Gái</span
-            >
-          </button>
-
-          <button
-            @click="openFor('groom')"
-            class="group relative w-full overflow-hidden rounded-full border-2 border-[#B8860B] bg-[#FFF8E1] py-3.5 text-[#991B1B] shadow-xl transition-all hover:bg-[#B8860B] hover:text-white hover:border-[#FFF8E1] active:scale-95"
-          >
-            <span
-              class="font-cinzel text-sm font-bold uppercase tracking-[2px] group-hover:tracking-[3px] transition-all"
-              >Khách Nhà Trai</span
-            >
-          </button>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+            />
+          </svg>
         </div>
       </div>
     </div>
@@ -376,15 +380,61 @@ onUnmounted(() => {
 .font-cinzel {
   font-family: "Cinzel", serif;
 }
-.font-pinyon {
-  font-family: "Great Vibes", cursive;
-  transform: scale(1.1);
-  transform-origin: center;
-}
 .font-serif {
   font-family: "Cormorant Garamond", serif;
   font-weight: 600;
 }
 
-/* Các style khác giữ nguyên */
+.red-foil-text {
+  background-image: linear-gradient(
+    var(--shine-angle, 135deg),
+    #880e4f 0%,
+    #d32f2f 30%,
+    #ffcdd2 48%,
+    #ffcdd2 52%,
+    #d32f2f 70%,
+    #880e4f 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* filter: drop-shadow(0 2px 0px rgba(255, 255, 255, 0.3)); */
+  background-size: 200% auto;
+  will-change: background-image;
+}
+
+/* === 2. CHỮ VÀNG (Cho Nội Dung Bên Trong) === */
+.gold-foil-text {
+  background-image: linear-gradient(
+    var(--shine-angle, 135deg),
+    #8a6e2f 0%,
+    #e3d278 20%,
+    #ffffe0 48%,
+    #ffffe0 52%,
+    #e3d278 80%,
+    #8a6e2f 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Bóng nhẹ hơn cho nền vàng */
+  /* filter: drop-shadow(0 1px 0px rgba(139, 114, 55, 0.4)); */
+  background-size: 200% auto;
+  will-change: background-image;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(153, 27, 27, 0.4);
+  }
+  50% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 8px rgba(153, 27, 27, 0);
+  }
+}
 </style>

@@ -3,14 +3,17 @@ import { ref, computed } from "vue";
 import WeddingCartoon from "./WeddingCartoon.vue";
 import WeddingFormal from "./WeddingFormal.vue";
 
-// --- STATE ---
+// 1. Nhận thông tin phe nào (bride/groom)
+const props = defineProps<{
+  side: "bride" | "groom";
+}>();
+
+// 2. Quản lý Style (Mặc định Formal)
 const currentStyle = ref("formal");
 const isSwitching = ref(false);
-
-// Computed
 const isCartoon = computed(() => currentStyle.value === "cartoon");
 
-// --- LOGIC ---
+// 3. Hàm chuyển đổi Style (Có preload ảnh)
 const toggleStyle = async () => {
   if (isSwitching.value) return;
 
@@ -21,7 +24,7 @@ const toggleStyle = async () => {
     const img = new Image();
     img.src =
       nextStyle === "formal" ? "/images/cover.jpg" : "/images/cover-anime.jpg";
-    await img.decode();
+    await img.decode(); // Đợi giải mã ảnh xong để tránh giật
   } catch (e) {
     console.warn("Preload failed", e);
   }
@@ -33,21 +36,15 @@ const toggleStyle = async () => {
 
 <template>
   <div class="relative w-full h-full">
-    <div class="fixed top-5 left-5 z-9999">
+    <div class="fixed top-4 left-4 z-9999">
       <button
         @click="toggleStyle"
         :disabled="isSwitching"
         class="group relative flex items-center cursor-pointer outline-none select-none w-14 h-8 rounded-full transition-all duration-500 ease-in-out"
         :class="[
-          // STYLE 1: FORMAL (Nền đỏ tối, viền vàng mảnh)
           !isCartoon
             ? 'bg-red-950/80 border border-yellow-700/40 backdrop-blur-sm shadow-sm'
-            : '',
-
-          // STYLE 2: CARTOON (Nền vàng tươi, viền nâu dày, bóng cứng)
-          isCartoon
-            ? 'bg-[#FFD54F] border-2 border-[#3E2723] shadow-[2px_2px_0px_#3E2723]'
-            : '',
+            : 'bg-[#FFD54F] border-2 border-[#3E2723] shadow-[2px_2px_0px_#3E2723]',
         ]"
       >
         <div
@@ -63,22 +60,18 @@ const toggleStyle = async () => {
         <div
           class="absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-500 cubic-bezier flex items-center justify-center z-10 shadow-sm"
           :class="[
-            // Vị trí Formal (Trái): left-1 (4px)
             !isCartoon
               ? 'left-1 w-6 h-6 bg-linear-to-br from-yellow-50 to-yellow-600 border border-white/20'
-              : '',
-
-            // Vị trí Cartoon (Phải): left-[calc(100%-1.75rem)] (Tính toán để sát phải tương ứng)
-            isCartoon
-              ? 'left-[calc(100%-1.6rem)] w-5 h-5 bg-white border-2 border-[#3E2723]'
-              : '',
+              : 'left-[calc(100%-1.6rem)] w-5 h-5 bg-white border-2 border-[#3E2723]',
           ]"
         >
           <div
             class="transform transition-transform duration-500"
             :class="isCartoon ? 'rotate-12 scale-90' : 'scale-75'"
           >
+            <span v-if="isCartoon" class="text-[10px] leading-none">🐣</span>
             <svg
+              v-else
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
               viewBox="0 0 24 24"
@@ -94,13 +87,15 @@ const toggleStyle = async () => {
     </div>
 
     <Transition name="fade-slow" mode="out-in">
-      <component :is="isCartoon ? WeddingCartoon : WeddingFormal" />
+      <component
+        :is="isCartoon ? WeddingCartoon : WeddingFormal"
+        :side="props.side"
+      />
     </Transition>
   </div>
 </template>
 
 <style scoped>
-/* Transition Fade Mượt */
 .fade-slow-enter-active,
 .fade-slow-leave-active {
   transition: opacity 0.6s ease;
@@ -109,8 +104,6 @@ const toggleStyle = async () => {
 .fade-slow-leave-to {
   opacity: 0;
 }
-
-/* Hiệu ứng nảy khi chuyển toggle */
 .cubic-bezier {
   transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

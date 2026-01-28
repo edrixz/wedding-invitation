@@ -1,17 +1,33 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useHead } from "#imports";
-import WeddingMain from "./components/WeddingMain.vue";
-import GlobalLoading from "./components/GlobalLoading.vue";
+import GlobalLoading from "./components/GlobalLoading.vue"; // Giữ lại Loading
 
-// 1. Preload Video
+// 1. Preload Video & Fonts
 useHead({
+  title: "Phương Huyền & Văn Hiếu - Wedding Invitation",
+  meta: [
+    {
+      name: "description",
+      content: "Trân trọng kính mời tới dự lễ cưới của chúng tôi.",
+    },
+    {
+      name: "viewport",
+      content:
+        "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+    }, // Chặn zoom trên mobile
+  ],
   link: [
     {
       rel: "preload",
       as: "video",
       href: "/video/loading.mp4",
       type: "video/mp4",
+    },
+    // Preload Font quan trọng để tránh layout shift
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap",
     },
   ],
 });
@@ -21,15 +37,15 @@ const MIN_LOADING_TIME = 2500;
 
 // State
 const isLoading = ref(true);
-const rawProgress = ref(0); // Giá trị thực (có thể là số lẻ)
+const rawProgress = ref(0);
 
-// Computed để làm tròn số khi truyền vào component (tránh hiển thị 12.345%)
 const loadProgress = computed(() => Math.floor(rawProgress.value));
 
+// CẬP NHẬT LẠI DANH SÁCH ẢNH CHO ĐÚNG VỚI COMPONENT MỚI
 const assetsToPreload = [
   "/images/loading-thumb.jpg",
   "/images/cover-anime.jpg",
-  "/images/cover-real.jpg",
+  "/images/cover.jpg", // Sửa từ cover-real.jpg thành cover.jpg
   "/images/title.png",
   "https://www.transparenttextures.com/patterns/cream-paper.png",
 ];
@@ -39,22 +55,18 @@ const preloadImage = (src: string) => {
     const img = new Image();
     img.src = src;
     img.onload = resolve;
-    img.onerror = resolve;
+    img.onerror = resolve; // Lỗi vẫn cho qua để không kẹt loading
   });
 };
 
 onMounted(async () => {
-  // --- A. LOGIC TĂNG TIẾN TRÌNH TỰ ĐỘNG (FAKE PROGRESS) ---
-  // Mục tiêu: Tăng từ 0 -> 90% trong khoảng MIN_LOADING_TIME
-  const intervalTime = 30; // Cập nhật mỗi 30ms cho mượt
+  // --- A. LOGIC TĂNG TIẾN TRÌNH GIẢ LẬP ---
+  const intervalTime = 30;
   const totalSteps = MIN_LOADING_TIME / intervalTime;
-  const stepIncrement = 90 / totalSteps; // Mỗi bước tăng bao nhiêu %
+  const stepIncrement = 90 / totalSteps;
 
   const progressInterval = setInterval(() => {
-    // Tăng dần
     const nextValue = rawProgress.value + stepIncrement;
-
-    // Chặn lại ở 90% (hoặc 95%) nếu chưa tải xong thật
     if (nextValue >= 90) {
       rawProgress.value = 90;
     } else {
@@ -62,21 +74,17 @@ onMounted(async () => {
     }
   }, intervalTime);
 
-  // --- B. LOGIC TẢI TÀI NGUYÊN THẬT (REAL LOADING) ---
+  // --- B. LOGIC TẢI TÀI NGUYÊN THẬT ---
   const timerPromise = new Promise((resolve) =>
     setTimeout(resolve, MIN_LOADING_TIME),
   );
-
   const assetPromises = assetsToPreload.map((src) => preloadImage(src));
 
-  // Đợi cả Timer và việc Tải ảnh xong
+  // Đợi cả 2
   await Promise.all([Promise.all(assetPromises), timerPromise]);
 
   // --- C. KẾT THÚC ---
-  // Dọn dẹp bộ đếm
   clearInterval(progressInterval);
-
-  // Nhảy vọt lên 100% (Xong hẳn)
   rawProgress.value = 100;
 
   setTimeout(() => {
@@ -86,18 +94,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div class="antialiased">
     <Transition name="fade" mode="out-in">
       <GlobalLoading v-if="isLoading" :progress="loadProgress" />
     </Transition>
 
     <div v-show="!isLoading">
-      <WeddingMain />
+      <NuxtPage />
     </div>
   </div>
 </template>
 
 <style>
+/* CSS Reset cơ bản cho full height */
+html,
+body,
+#__nuxt {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Tránh cuộn thừa khi có hiệu ứng bay nhảy */
+  background-color: #fffbf0; /* Màu nền trùng với thiệp để tránh nháy trắng */
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.8s ease;

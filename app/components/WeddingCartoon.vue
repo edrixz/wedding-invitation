@@ -2,16 +2,19 @@
 import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
-// --- CẤU HÌNH DỮ LIỆU (CARTOON VERSION) ---
+// 1. Nhận Props
+const props = defineProps<{
+  side: "bride" | "groom";
+}>();
+
+// 2. Data Động (Copy logic từ Formal sang nhưng giữ icon cute)
 const WEDDING_DATA = {
   bride: {
-    // NHÀ GÁI
     ceremonyTitle: "Lễ Vu Quy",
     mainName1: "Phương Huyền",
     mainName2: "Văn Hiếu",
     date: "22.02.2026",
     lunarDate: "(Tức ngày 06 tháng 01 năm Bính Ngọ)",
-    // Icon trái tim hoặc hoa cho cute
     time1: { label: "Bữa Cơm Thân Mật", value: "09:00", icon: "🍚" },
     time2: { label: "Lễ Vu Quy", value: "11:30", icon: "💍" },
     locationTitle: "Tại Tư Gia Nhà Gái",
@@ -19,7 +22,6 @@ const WEDDING_DATA = {
     mapLink: "#",
   },
   groom: {
-    // NHÀ TRAI
     ceremonyTitle: "Lễ Thành Hôn",
     mainName1: "Văn Hiếu",
     mainName2: "Phương Huyền",
@@ -33,29 +35,23 @@ const WEDDING_DATA = {
   },
 };
 
-// State
-const isOpened = ref(false);
-const currentSide = ref<"bride" | "groom">("bride");
-
-// Computed Data
-const data = computed(() => WEDDING_DATA[currentSide.value]);
+const data = computed(() => WEDDING_DATA[props.side]);
 
 // Refs & GSAP
 const containerRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
 const innerRef = ref<HTMLElement | null>(null);
 const contentElementsRef = ref<HTMLElement | null>(null);
+const openButtonRef = ref<HTMLElement | null>(null); // Thêm ref nút mở
 const closeButtonRef = ref<HTMLElement | null>(null);
+const isOpened = ref(false);
 
 let ctx: gsap.Context;
 let tl: gsap.core.Timeline;
-
 const paperTexture =
   "https://www.transparenttextures.com/patterns/cream-paper.png";
 
-// Hàm mở thiệp
-const openFor = (side: "bride" | "groom") => {
-  currentSide.value = side;
+const openInvitation = () => {
   isOpened.value = true;
   if (tl) tl.play();
 };
@@ -73,16 +69,15 @@ onMounted(() => {
       },
     });
 
-    // Animation mở thiệp (Cartoon style: Nảy mạnh hơn)
-    tl.to(".cover-actions", {
+    // Animation mở thiệp
+    tl.to([openButtonRef.value, ".cover-content"], {
       opacity: 0,
       scale: 0.8,
       duration: 0.3,
       ease: "back.in(1.7)",
       pointerEvents: "none",
     })
-      .to(".cover-content", { y: -100, opacity: 0, duration: 0.4 }, "<")
-      .to(coverRef.value, { y: "-100%", duration: 1.2, ease: "power4.inOut" }) // Trượt nhanh
+      .to(coverRef.value, { y: "-100%", duration: 1.2, ease: "power4.inOut" })
       .fromTo(
         innerRef.value,
         { scale: 0.8, rotation: -2 },
@@ -122,7 +117,7 @@ onUnmounted(() => ctx?.revert());
         viewBox="0 0 24 24"
         stroke-width="4"
         stroke="currentColor"
-        class="w-6 h-6 md:w-8 md:h-8"
+        class="w-6 h-6"
       >
         <path
           stroke-linecap="round"
@@ -193,14 +188,13 @@ onUnmounted(() => ctx?.revert());
               {{ data.lunarDate }}
             </p>
           </div>
-
           <div class="flex flex-col space-y-2 mt-2 px-4">
             <div
               class="flex justify-between items-center bg-white/40 p-1.5 rounded-lg"
             >
               <div class="flex items-center space-x-2">
-                <span class="text-lg">{{ data.time1.icon }}</span>
-                <span class="font-bold text-xs md:text-sm uppercase"
+                <span class="text-lg">{{ data.time1.icon }}</span
+                ><span class="font-bold text-xs md:text-sm uppercase"
                   >{{ data.time1.label }}:</span
                 >
               </div>
@@ -209,13 +203,12 @@ onUnmounted(() => ctx?.revert());
                 >{{ data.time1.value }}</span
               >
             </div>
-
             <div
               class="flex justify-between items-center bg-white/40 p-1.5 rounded-lg"
             >
               <div class="flex items-center space-x-2">
-                <span class="text-lg">{{ data.time2.icon }}</span>
-                <span class="font-bold text-xs md:text-sm uppercase"
+                <span class="text-lg">{{ data.time2.icon }}</span
+                ><span class="font-bold text-xs md:text-sm uppercase"
                   >{{ data.time2.label }}:</span
                 >
               </div>
@@ -287,43 +280,33 @@ onUnmounted(() => ctx?.revert());
       </div>
 
       <div
-        class="cover-actions relative z-30 mb-12 flex flex-col w-full px-10 space-y-4"
+        ref="openButtonRef"
+        @click="openInvitation"
+        class="relative z-30 mb-8 flex flex-col items-center cursor-pointer animate-bounce-slow w-full hover:scale-105 transition-transform"
       >
+        <div
+          class="w-[6vh] h-[6vh] rounded-full bg-[#FFD54F] border-[0.5vh] border-[#3E2723] flex items-center justify-center shadow-cartoon-heavy relative z-10"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="4"
+            stroke="currentColor"
+            class="w-[3vh] h-[3vh] animate-pulse"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4.5 15.75l7.5-7.5 7.5 7.5"
+            />
+          </svg>
+        </div>
         <p
-          class="text-[#FFD54F] font-pangolin text-xs text-center font-bold shadow-black drop-shadow-md tracking-wider mb-2"
+          class="text-[#FFD54F] font-pangolin text-sm mt-2 font-bold shadow-black drop-shadow-md tracking-wider"
         >
-          CHỌN THIỆP ĐỂ MỞ
+          MỞ THIỆP
         </p>
-
-        <button
-          @click="openFor('bride')"
-          class="group w-full relative bg-[#FFF176] border-2 border-[#3E2723] rounded-xl py-3 shadow-cartoon active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-        >
-          <div class="flex items-center justify-center space-x-2">
-            <span class="text-xl group-hover:scale-125 transition-transform"
-              >🌸</span
-            >
-            <span
-              class="font-patrick text-lg font-bold text-[#3E2723] uppercase"
-              >Khách Nhà Gái</span
-            >
-          </div>
-        </button>
-
-        <button
-          @click="openFor('groom')"
-          class="group w-full relative bg-[#81C784] border-2 border-[#1B5E20] rounded-xl py-3 shadow-[4px_4px_0px_#1B5E20] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-        >
-          <div class="flex items-center justify-center space-x-2">
-            <span class="text-xl group-hover:scale-125 transition-transform"
-              >🐻</span
-            >
-            <span
-              class="font-patrick text-lg font-bold text-[#1B5E20] uppercase"
-              >Khách Nhà Trai</span
-            >
-          </div>
-        </button>
       </div>
     </div>
   </div>
@@ -331,20 +314,21 @@ onUnmounted(() => ctx?.revert());
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Pangolin&family=Patrick+Hand&display=swap");
-
 .font-pangolin {
   font-family: "Pangolin", cursive;
 }
 .font-patrick {
   font-family: "Patrick Hand", cursive;
 }
-
-/* Bóng đổ khối chuẩn Cartoon */
 .shadow-cartoon {
   box-shadow: 4px 4px 0px #3e2723;
 }
-
-/* Animation nổi nhẹ */
+.shadow-cartoon-heavy {
+  box-shadow: 0.6vh 0.6vh 0px #261410;
+}
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
 .animate-float-slow {
   animation: float 4s ease-in-out infinite;
 }
