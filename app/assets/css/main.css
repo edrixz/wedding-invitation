@@ -2,6 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,400;0,600;0,700;1,400&display=swap");
 
 /* 1. Tailwind bắt buộc đầu tiên */
 @import "tailwindcss";
@@ -37,4 +38,8 @@
 
 .font-serif {
   font-family: "Cormorant Garamond", serif;
+}
+
+.font-mali {
+  font-family: "Mali", cursive;
 }

@@ -4,7 +4,7 @@ import { useHead } from "#imports";
 import GlobalLoading from "./components/GlobalLoading.vue";
 
 useHead({
-  title: "Phương Huyền & Văn Hiếu - Wedding Invitation",
+  title: "Wedding Invitation",
   meta: [
     {
       name: "description",

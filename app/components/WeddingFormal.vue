@@ -41,52 +41,40 @@ const WEDDING_DATA = {
 const data = computed(() => WEDDING_DATA[props.side]);
 const isOpened = ref(false);
 
-// --- LOGIC PHẢN XẠ ÁNH SÁNG MỚI (Dựa trên Position X/Y) ---
-// Giá trị đích (Target)
-let targetX = 50; // %
-let targetY = 50; // %
-
-// Giá trị hiện tại (Current - dùng để lerp cho mượt)
+// --- LOGIC PHẢN XẠ ÁNH SÁNG (GYROSCOPE) ---
+let targetX = 50;
+let targetY = 50;
 let currentX = 50;
 let currentY = 50;
 let animationFrameId: number;
 
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
-  // Gamma (Trái/Phải): -90 đến 90.
-  // Ta map khoảng -45 đến 45 thành 0% đến 100% position X
-  const gamma = event.gamma || 0;
-  // Beta (Trước/Sau): -180 đến 180. Trừ 45 độ (góc cầm tay).
-  // Ta map khoảng -45 đến 45 thành 0% đến 100% position Y
-  const beta = (event.beta || 0) - 45;
+  const gamma = event.gamma || 0; // Trái/Phải
+  const beta = (event.beta || 0) - 45; // Trước/Sau (trừ góc cầm máy)
 
-  // Công thức Map: (Value + Max) / (Max * 2) * 100
-  // Đảo ngược dấu (-) ở gamma để nghiêng trái thì sáng chạy sang trái (tự nhiên hơn)
+  // Map vào background position (0% -> 100%)
+  // Tăng hệ số nhân lên 1.5 để nhạy hơn
   targetX = 50 + gamma * 1.5;
   targetY = 50 + beta * 1.5;
 
-  // Clamp giá trị trong khoảng 0-100 để không bị vỡ background
+  // Giới hạn trong khoảng an toàn
   targetX = Math.max(0, Math.min(100, targetX));
   targetY = Math.max(0, Math.min(100, targetY));
 };
 
-// Fallback chuột (cho Desktop)
 const handleMouseMove = (event: MouseEvent) => {
   const { innerWidth, innerHeight } = window;
   const x = event.clientX / innerWidth;
   const y = event.clientY / innerHeight;
-
-  // Map chuột 0-1 thành 0-100%
   targetX = x * 100;
   targetY = y * 100;
 };
 
 const updateLightLoop = () => {
-  // Lerp để chuyển động mượt mà (Hệ số 0.08)
   currentX += (targetX - currentX) * 0.08;
   currentY += (targetY - currentY) * 0.08;
 
   if (containerRef.value) {
-    // Cập nhật biến CSS --shine-x và --shine-y
     containerRef.value.style.setProperty("--shine-x", `${currentX}%`);
     containerRef.value.style.setProperty("--shine-y", `${currentY}%`);
   }
@@ -103,7 +91,38 @@ const closeButtonRef = ref<HTMLElement | null>(null);
 let ctx: gsap.Context;
 let tl: gsap.core.Timeline;
 
-const openInvitation = () => {
+// --- XỬ LÝ QUYỀN TRUY CẬP TRÊN IPHONE ---
+const requestGyroPermission = async () => {
+  // Kiểm tra xem trình duyệt có yêu cầu quyền không (chỉ iOS 13+ mới có hàm này)
+  if (
+    typeof DeviceOrientationEvent !== "undefined" &&
+    typeof (DeviceOrientationEvent as any).requestPermission === "function"
+  ) {
+    try {
+      const response = await (
+        DeviceOrientationEvent as any
+      ).requestPermission();
+      if (response === "granted") {
+        window.addEventListener(
+          "deviceorientation",
+          handleDeviceOrientation,
+          true,
+        );
+      } else {
+        // Người dùng từ chối
+        console.warn("Gyroscope permission denied");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+};
+
+const openInvitation = async () => {
+  // 1. Xin quyền ngay khi bấm nút (vì cần user interaction)
+  await requestGyroPermission();
+
+  // 2. Chạy animation mở thiệp
   isOpened.value = true;
   if (tl) tl.play();
 };
@@ -115,8 +134,10 @@ const closeInvitation = () => {
 defineExpose({ isOpened, closeInvitation });
 
 onMounted(() => {
-  updateLightLoop(); // Chạy loop ngay lập tức
+  updateLightLoop();
 
+  // Đăng ký sự kiện cho Android/Desktop hoặc iOS cũ (không cần xin quyền)
+  // Nếu là iOS 13+, sự kiện này sẽ không chạy cho đến khi requestPermission được gọi ở trên
   if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", handleDeviceOrientation, true);
   }
@@ -256,7 +277,7 @@ onUnmounted(() => {
                 {{ data.date }}
               </div>
               <p
-                class="font-cinzel mt-1 text-[9px] uppercase tracking-widest text-[#5d4037] md:mt-2 md:text-xs"
+                class="font-wedding-1 mt-1 text-[9px] uppercase tracking-widest text-[#5d4037] md:mt-2 md:text-xs"
               >
                 {{ data.lunarDate }}
               </p>
@@ -266,7 +287,7 @@ onUnmounted(() => {
                 class="flex items-baseline justify-between border-b border-dotted border-yellow-700/30 pb-1"
               >
                 <span
-                  class="font-cinzel text-xs uppercase text-[#5d4037] md:text-base font-bold"
+                  class="font-wedding-1 text-xs uppercase text-[#5d4037] md:text-base font-bold"
                   >{{ data.time1.label }}</span
                 >
                 <span
@@ -276,7 +297,7 @@ onUnmounted(() => {
               </div>
               <div class="flex items-baseline justify-between">
                 <span
-                  class="font-cinzel text-xs uppercase text-[#5d4037] md:text-base font-bold"
+                  class="font-wedding-1 text-xs uppercase text-[#5d4037] md:text-base font-bold"
                   >{{ data.time2.label }}</span
                 >
                 <span
@@ -290,7 +311,7 @@ onUnmounted(() => {
 
         <div class="shrink-0 space-y-1 md:space-y-2">
           <p
-            class="font-cinzel mb-0.5 text-xs font-bold uppercase text-[#3e2723] md:mb-1 md:text-base"
+            class="font-wedding-1 mb-0.5 text-xs font-bold uppercase text-[#3e2723] md:mb-1 md:text-base"
           >
             {{ data.locationTitle }}
           </p>
@@ -307,7 +328,7 @@ onUnmounted(() => {
         </div>
 
         <div
-          class="font-cinzel grid w-full shrink-0 grid-cols-2 gap-4 border-t border-yellow-700/30 pt-3 text-[9px] uppercase tracking-widest opacity-80 md:gap-6 md:pt-4 md:text-xs"
+          class="font-wedding-1 grid w-full shrink-0 grid-cols-2 gap-4 border-t border-yellow-700/30 pt-3 text-[9px] uppercase tracking-widest opacity-80 md:gap-6 md:pt-4 md:text-xs"
         >
           <div class="text-left">
             <span class="mb-1 block font-bold text-red-900">Nhà Gái</span>
@@ -413,21 +434,15 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* LOGIC MỚI: 
-  - Dùng linear-gradient chéo (135deg).
-  - Background size cực lớn (250%).
-  - Di chuyển background-position theo biến --shine-x và --shine-y
-*/
-
 /* Red Foil (Cho bìa) */
 .red-foil-text {
   background-image: linear-gradient(
     135deg,
-    /* Góc cố định */ #880e4f 0%,
+    #880e4f 0%,
     #880e4f 20%,
     #d32f2f 40%,
     #ffcdd2 50%,
-    /* Vệt sáng trắng hồng ở giữa */ #d32f2f 60%,
+    #d32f2f 60%,
     #880e4f 80%,
     #880e4f 100%
   );
@@ -435,14 +450,8 @@ onUnmounted(() => {
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 2px 0px rgba(255, 255, 255, 0.3));
-
-  /* Quan trọng: Size lớn để có chỗ cho position di chuyển */
   background-size: 250% 250%;
-
-  /* Nhận giá trị từ JS */
   background-position: var(--shine-x, 50%) var(--shine-y, 50%);
-
-  /* Tối ưu hiệu năng */
   will-change: background-position;
 }
 
@@ -454,7 +463,7 @@ onUnmounted(() => {
     #8a6e2f 20%,
     #e3d278 40%,
     #ffffe0 50%,
-    /* Vệt sáng vàng nhạt ở giữa */ #e3d278 60%,
+    #e3d278 60%,
     #8a6e2f 80%,
     #8a6e2f 100%
   );
@@ -462,7 +471,6 @@ onUnmounted(() => {
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 1px 0px rgba(139, 114, 55, 0.4));
-
   background-size: 250% 250%;
   background-position: var(--shine-x, 50%) var(--shine-y, 50%);
   will-change: background-position;

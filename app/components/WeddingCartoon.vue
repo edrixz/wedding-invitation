@@ -15,7 +15,7 @@ const WEDDING_DATA = {
     time2: { label: "Lễ Vu Quy", value: "11:30", icon: "💍" },
     locationTitle: "Tại Tư Gia Nhà Gái",
     address: "TDP Tân Tiến - Xã Kiến Xương - Hưng Yên",
-    mapLink: "#",
+    mapLink: "",
   },
   groom: {
     ceremonyTitle: "Lễ Thành Hôn",
@@ -23,11 +23,11 @@ const WEDDING_DATA = {
     mainName2: "Phương Huyền",
     date: "22.02.2026",
     lunarDate: "(Tức ngày 06 tháng 01 năm Bính Ngọ)",
-    time1: { label: "Tiệc Mừng", value: "10:30", icon: "🍷" },
-    time2: { label: "Lễ Thành Hôn", value: "12:00", icon: "💞" },
+    time1: { label: "Tiệc Mừng", value: "09:00", icon: "🍷" },
+    time2: { label: "Lễ Thành Hôn", value: "11:30", icon: "💞" },
     locationTitle: "Tại Tư Gia Nhà Trai",
     address: "Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên",
-    mapLink: "#",
+    mapLink: "",
   },
 };
 
@@ -103,7 +103,7 @@ onUnmounted(() => ctx?.revert());
 <template>
   <div
     ref="containerRef"
-    class="w-full h-dvh bg-black overflow-hidden relative font-pangolin"
+    class="w-full h-dvh bg-black overflow-hidden relative font-mali text-[#5d4037]"
   >
     <div
       ref="closeButtonRef"
@@ -132,21 +132,8 @@ onUnmounted(() => ctx?.revert());
       :style="{ backgroundImage: `url('${paperTexture}')` }"
     >
       <div
-        class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-xl"
-      ></div>
-      <div
-        class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-xl"
-      ></div>
-      <div
-        class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-xl"
-      ></div>
-      <div
-        class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-xl"
-      ></div>
-
-      <div
         ref="contentElementsRef"
-        class="relative z-10 flex flex-col items-center text-center space-y-3 md:space-y-5 px-6 md:px-0 w-full max-w-md text-[#5d4037]"
+        class="relative z-10 flex flex-col items-center text-center space-y-3 md:space-y-5 px-6 md:px-0 w-full max-w-md"
       >
         <div>
           <p
@@ -158,8 +145,9 @@ onUnmounted(() => ctx?.revert());
             Tới dự {{ data.ceremonyTitle }} của hai con chúng tôi
           </h2>
         </div>
+
         <div
-          class="text-4xl md:text-6xl text-[#b8860b] leading-tight py-2 font-patrick font-bold drop-shadow-sm transform -rotate-2"
+          class="text-4xl md:text-6xl text-[#ff0000] leading-tight py-2 font-bold drop-shadow-sm transform -rotate-2"
         >
           <span class="block">{{ data.mainName1 }}</span>
           <span class="text-2xl md:text-4xl text-[#3E2723] inline-block my-1"
@@ -167,6 +155,7 @@ onUnmounted(() => ctx?.revert());
           >
           <span class="block">{{ data.mainName2 }}</span>
         </div>
+
         <div
           class="w-full border-2 border-[#3E2723] py-3 bg-[#FFECB3] rounded-xl shadow-cartoon relative overflow-hidden"
         >
@@ -175,7 +164,7 @@ onUnmounted(() => ctx?.revert());
           ></div>
           <div class="mb-2 border-b-2 border-[#3E2723]/20 pb-2 border-dashed">
             <div
-              class="text-3xl md:text-5xl font-bold text-[#BF360C] tracking-widest font-patrick"
+              class="text-3xl md:text-5xl font-bold text-[#BF360C] tracking-widest"
             >
               {{ data.date }}
             </div>
@@ -195,10 +184,9 @@ onUnmounted(() => ctx?.revert());
                   >{{ data.time1.label }}:</span
                 >
               </div>
-              <span
-                class="font-patrick text-xl md:text-2xl font-bold text-[#3E2723]"
-                >{{ data.time1.value }}</span
-              >
+              <span class="text-xl md:text-2xl font-bold text-[#3E2723]">{{
+                data.time1.value
+              }}</span>
             </div>
             <div
               class="flex justify-between items-center bg-white/40 p-1.5 rounded-lg"
@@ -209,20 +197,20 @@ onUnmounted(() => ctx?.revert());
                   >{{ data.time2.label }}:</span
                 >
               </div>
-              <span
-                class="font-patrick text-xl md:text-2xl font-bold text-[#D84315]"
-                >{{ data.time2.value }}</span
-              >
+              <span class="text-xl md:text-2xl font-bold text-[#D84315]">{{
+                data.time2.value
+              }}</span>
             </div>
           </div>
         </div>
+
         <div>
           <p
             class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-1 bg-[#FFD54F] inline-block px-2 py-0.5 rounded-md border border-[#3E2723] shadow-sm transform rotate-1"
           >
             {{ data.locationTitle }}
           </p>
-          <p class="text-sm md:text-base font-patrick mt-1 font-bold">
+          <p class="text-sm md:text-base mt-1 font-bold">
             {{ data.address }}
           </p>
           <a
@@ -233,6 +221,7 @@ onUnmounted(() => ctx?.revert());
             >📍 Xem bản đồ</a
           >
         </div>
+
         <div
           class="w-full grid grid-cols-2 gap-4 text-[10px] md:text-xs uppercase tracking-wide border-t-2 border-[#3E2723]/20 pt-3 opacity-90 font-bold"
         >
@@ -296,7 +285,7 @@ onUnmounted(() => ctx?.revert());
           </svg>
         </div>
         <p
-          class="text-[#FFD54F] font-pangolin text-sm mt-2 font-bold shadow-black drop-shadow-md tracking-wider"
+          class="text-[#FFD54F] text-sm mt-2 font-bold shadow-black drop-shadow-md tracking-wider"
         >
           MỞ THIỆP
         </p>
