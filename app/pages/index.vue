@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Trang điều hướng đơn giản
+// Landing Page
 </script>
 
 <template>
@@ -44,5 +44,3 @@
     </div>
   </div>
 </template>
-
-<style scoped></style>

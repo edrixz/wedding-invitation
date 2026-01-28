@@ -2,7 +2,6 @@
 import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
-// 1. ĐỊNH NGHĨA PROPS
 const props = withDefaults(
   defineProps<{
     side?: "bride" | "groom";
@@ -12,7 +11,6 @@ const props = withDefaults(
   },
 );
 
-// --- CẤU HÌNH DỮ LIỆU ---
 const WEDDING_DATA = {
   bride: {
     ceremonyTitle: "Lễ Vu Quy",
@@ -24,7 +22,7 @@ const WEDDING_DATA = {
     time2: { label: "Lễ Vu Quy", value: "11:30" },
     locationTitle: "Tại Tư Gia Nhà Gái",
     address: "TDP Tân Tiến - Xã Kiến Xương - Hưng Yên",
-    mapLink: "#",
+    mapLink: "",
   },
   groom: {
     ceremonyTitle: "Lễ Thành Hôn",
@@ -36,17 +34,14 @@ const WEDDING_DATA = {
     time2: { label: "Lễ Thành Hôn", value: "11:30" },
     locationTitle: "Tại Tư Gia Nhà Trai",
     address: "Thôn Thái Công Nam - Xã Hồng Vũ - Hưng Yên",
-    mapLink: "#",
+    mapLink: "",
   },
 };
 
-// State mở thiệp
+const data = computed(() => WEDDING_DATA[props.side]);
 const isOpened = ref(false);
 
-// Computed: Tự động lấy data theo Props truyền vào
-const data = computed(() => WEDDING_DATA[props.side]);
-
-// --- LOGIC VẬT LÝ ÁNH SÁNG (GYROSCOPE) ---
+// --- Gyroscope Logic ---
 let targetAngle = 135;
 let currentAngle = 135;
 let animationFrameId: number;
@@ -54,11 +49,8 @@ let animationFrameId: number;
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   const gamma = event.gamma || 0;
   const beta = (event.beta || 0) - 45;
-
   const angleRad = Math.atan2(gamma, beta);
-  const angleDeg = angleRad * (180 / Math.PI);
-
-  targetAngle = 135 - angleDeg;
+  targetAngle = 135 - angleRad * (180 / Math.PI);
 };
 
 const updateLightLoop = () => {
@@ -69,7 +61,7 @@ const updateLightLoop = () => {
   animationFrameId = requestAnimationFrame(updateLightLoop);
 };
 
-// Refs & GSAP
+// --- Refs & Animation ---
 const containerRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
 const innerRef = ref<HTMLElement | null>(null);
@@ -87,6 +79,12 @@ const openInvitation = () => {
 const closeInvitation = () => {
   if (tl) tl.reverse();
 };
+
+// EXPOSE API CHO WRAPPER
+defineExpose({
+  isOpened,
+  closeInvitation,
+});
 
 onMounted(() => {
   if (window.DeviceOrientationEvent) {
@@ -268,13 +266,13 @@ onUnmounted(() => {
           <p class="font-serif text-sm italic md:text-lg text-[#5d4037] px-4">
             {{ data.address }}
           </p>
-          <!-- <a
+          <a
             v-if="data.mapLink"
             :href="data.mapLink"
             target="_blank"
             class="inline-block mt-2 text-[10px] uppercase border border-[#B8860B] text-[#B8860B] px-3 py-1 rounded-full hover:bg-[#B8860B] hover:text-white transition-colors"
             >Xem bản đồ</a
-          > -->
+          >
         </div>
 
         <div
@@ -307,7 +305,7 @@ onUnmounted(() => {
       </div>
 
       <div
-        class="cover-content relative z-30 flex w-full flex-col items-center bg-linear-to-b from-white via-white/80 to-transparent px-4 pb-12 pt-8 text-center backdrop-blur-[3px]"
+        class="cover-content relative z-30 flex w-full flex-col items-center bg-linear-to-b from-white via-white/80 to-transparent px-4 pb-12 pt-16 text-center backdrop-blur-[3px]"
         style="
           mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
           -webkit-mask-image: linear-gradient(
@@ -318,21 +316,27 @@ onUnmounted(() => {
         "
       >
         <div class="mb-2 flex items-center justify-center space-x-4">
+          <div class="h-px w-8 bg-red-800"></div>
           <h2
-            class="font-wedding-1 text-xs font-bold uppercase tracking-[4px] text-red-800"
+            class="font-cinzel text-xs font-bold uppercase tracking-[4px] text-red-800"
           >
             Thiệp Mời
           </h2>
+          <div class="h-px w-8 bg-red-800"></div>
         </div>
         <div
           class="relative flex flex-col items-center justify-center py-4 text-red-800"
         >
           <span
-            class="font-great-vibes relative z-10 -mb-2 block text-5xl leading-normal px-2 red-foil-text"
+            class="font-serif absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[8rem] leading-none text-[#B8860B] opacity-20 blur-[1px]"
+            >&</span
+          >
+          <span
+            class="font-great-vibes relative z-10 -mb-2 block text-5xl leading-normal red-foil-text px-2"
             >{{ data.mainName1 }}</span
           >
           <span
-            class="font-great-vibes relative z-10 block text-5xl leading-normal px-2 red-foil-text"
+            class="font-great-vibes relative z-10 block text-5xl leading-normal red-foil-text px-2"
             >{{ data.mainName2 }}</span
           >
         </div>
@@ -346,7 +350,7 @@ onUnmounted(() => {
       <div
         ref="openButtonRef"
         @click="openInvitation"
-        class="group relative z-30 mb-8 flex w-full cursor-pointer flex-col items-center"
+        class="group relative z-30 mb-12 flex w-full cursor-pointer flex-col items-center"
       >
         <p
           class="font-cinzel mb-2 text-[9px] font-bold uppercase tracking-[3px] text-yellow-400 opacity-80 transition-all group-hover:tracking-[4px] group-hover:opacity-100 md:text-[10px]"
@@ -354,7 +358,7 @@ onUnmounted(() => {
           Chạm để mở
         </p>
         <div
-          class="animate-pulse-slow relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-800 bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-red-800 md:h-14 md:w-14"
+          class="animate-pulse-slow relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-800 bg-white/40 shadow-lg backdrop-blur-md transition-colors duration-500 group-hover:bg-red-800"
         >
           <div
             class="absolute inset-1 scale-90 rounded-full border border-red-800/40 transition-transform duration-500 group-hover:scale-100 group-hover:border-white"
@@ -365,7 +369,7 @@ onUnmounted(() => {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="#991B1B"
-            class="h-5 w-5 transition-transform duration-500 group-hover:translate-y-0.5 group-hover:stroke-white md:h-7 md:w-7"
+            class="h-7 w-7 transition-transform duration-500 group-hover:translate-y-0.5 group-hover:stroke-white"
           >
             <path
               stroke-linecap="round"
@@ -380,16 +384,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Great+Vibes&display=swap");
-
-.font-cinzel {
-  font-family: "Cinzel", serif;
-}
-.font-serif {
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 600;
-}
-
+/* Không cần import font ở đây nữa */
 .red-foil-text {
   background-image: linear-gradient(
     var(--shine-angle, 135deg),
@@ -403,12 +398,10 @@ onUnmounted(() => {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  /* filter: drop-shadow(0 2px 0px rgba(255, 255, 255, 0.3)); */
+  filter: drop-shadow(0 2px 0px rgba(255, 255, 255, 0.3));
   background-size: 200% auto;
   will-change: background-image;
 }
-
-/* === 2. CHỮ VÀNG (Cho Nội Dung Bên Trong) === */
 .gold-foil-text {
   background-image: linear-gradient(
     var(--shine-angle, 135deg),
@@ -422,12 +415,10 @@ onUnmounted(() => {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  /* Bóng nhẹ hơn cho nền vàng */
-  /* filter: drop-shadow(0 1px 0px rgba(139, 114, 55, 0.4)); */
+  filter: drop-shadow(0 1px 0px rgba(139, 114, 55, 0.4));
   background-size: 200% auto;
   will-change: background-image;
 }
-
 .animate-pulse-slow {
   animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

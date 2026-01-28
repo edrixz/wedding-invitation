@@ -10,15 +10,21 @@ const props = defineProps<{
 const currentStyle = ref("formal");
 const isSwitching = ref(false);
 const isCartoon = computed(() => currentStyle.value === "cartoon");
+const activeComponentRef = ref<any>(null);
 
 const toggleStyle = async () => {
   if (isSwitching.value) return;
-
-  const nextStyle = isCartoon.value ? "formal" : "cartoon";
   isSwitching.value = true;
 
+  // 1. Nếu đang mở -> Ra lệnh đóng và chờ
+  if (activeComponentRef.value && activeComponentRef.value.isOpened) {
+    activeComponentRef.value.closeInvitation();
+    await new Promise((resolve) => setTimeout(resolve, 1800)); // Chờ animation đóng xong (1.8s)
+  }
+
+  // 2. Chuyển đổi Style
+  const nextStyle = isCartoon.value ? "formal" : "cartoon";
   try {
-    // Preload ảnh của style tiếp theo để tránh nháy hình
     const img = new Image();
     img.src =
       nextStyle === "formal" ? "/images/cover.jpg" : "/images/cover-anime.jpg";
@@ -29,7 +35,7 @@ const toggleStyle = async () => {
 
   currentStyle.value = nextStyle;
 
-  // Đợi animation chạy xong mới cho bấm tiếp
+  // 3. Kết thúc chuyển đổi
   setTimeout(() => {
     isSwitching.value = false;
   }, 600);
@@ -58,7 +64,6 @@ const toggleStyle = async () => {
             :class="isCartoon ? 'border-amber-900/30 border-t-amber-900' : ''"
           ></div>
         </div>
-
         <div
           class="absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-500 cubic-bezier flex items-center justify-center z-10 shadow-sm"
           :class="[
@@ -91,6 +96,7 @@ const toggleStyle = async () => {
         :is="isCartoon ? WeddingCartoon : WeddingFormal"
         :side="props.side"
         :key="currentStyle"
+        ref="activeComponentRef"
         class="absolute inset-0 w-full h-full"
       />
     </Transition>
@@ -98,39 +104,28 @@ const toggleStyle = async () => {
 </template>
 
 <style scoped>
-/* Easing xịn cho chuyển động mượt */
 .cubic-bezier {
   transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-
-/* ANIMATION CHUYỂN STYLE 
-  Logic: Component cũ mờ đi + zoom nhỏ lại. Component mới hiện lên + zoom từ to về bình thường.
-*/
 .switch-style-enter-active,
 .switch-style-leave-active {
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: absolute; /* Bắt buộc để chồng lên nhau */
+  position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
 }
-
-/* Trạng thái BẮT ĐẦU vào (Component Mới) */
 .switch-style-enter-from {
   opacity: 0;
-  transform: scale(1.05) filter(blur(4px)); /* Hơi phóng to và mờ */
+  transform: scale(1.05) filter(blur(4px));
   z-index: 2;
 }
-
-/* Trạng thái KẾT THÚC ra (Component Cũ) */
 .switch-style-leave-to {
   opacity: 0;
-  transform: scale(0.95) filter(blur(2px)); /* Hơi thu nhỏ và mờ */
+  transform: scale(0.95) filter(blur(2px));
   z-index: 1;
 }
-
-/* Trạng thái ổn định */
 .switch-style-enter-to,
 .switch-style-leave-from {
   opacity: 1;

@@ -2,12 +2,8 @@
 import { onMounted, onUnmounted, ref, computed } from "vue";
 import gsap from "gsap";
 
-// 1. Nhận Props
-const props = defineProps<{
-  side: "bride" | "groom";
-}>();
+const props = defineProps<{ side: "bride" | "groom" }>();
 
-// 2. Data Động (Copy logic từ Formal sang nhưng giữ icon cute)
 const WEDDING_DATA = {
   bride: {
     ceremonyTitle: "Lễ Vu Quy",
@@ -36,15 +32,14 @@ const WEDDING_DATA = {
 };
 
 const data = computed(() => WEDDING_DATA[props.side]);
+const isOpened = ref(false);
 
-// Refs & GSAP
 const containerRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
 const innerRef = ref<HTMLElement | null>(null);
 const contentElementsRef = ref<HTMLElement | null>(null);
-const openButtonRef = ref<HTMLElement | null>(null); // Thêm ref nút mở
+const openButtonRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLElement | null>(null);
-const isOpened = ref(false);
 
 let ctx: gsap.Context;
 let tl: gsap.core.Timeline;
@@ -60,6 +55,11 @@ const closeInvitation = () => {
   if (tl) tl.reverse();
 };
 
+defineExpose({
+  isOpened,
+  closeInvitation,
+});
+
 onMounted(() => {
   ctx = gsap.context(() => {
     tl = gsap.timeline({
@@ -69,7 +69,6 @@ onMounted(() => {
       },
     });
 
-    // Animation mở thiệp
     tl.to([openButtonRef.value, ".cover-content"], {
       opacity: 0,
       scale: 0.8,
@@ -133,6 +132,19 @@ onUnmounted(() => ctx?.revert());
       :style="{ backgroundImage: `url('${paperTexture}')` }"
     >
       <div
+        class="absolute top-6 left-6 w-12 h-12 border-t-4 border-l-4 border-[#8B4513]/40 rounded-tl-xl"
+      ></div>
+      <div
+        class="absolute top-6 right-6 w-12 h-12 border-t-4 border-r-4 border-[#8B4513]/40 rounded-tr-xl"
+      ></div>
+      <div
+        class="absolute bottom-6 left-6 w-12 h-12 border-b-4 border-l-4 border-[#8B4513]/40 rounded-bl-xl"
+      ></div>
+      <div
+        class="absolute bottom-6 right-6 w-12 h-12 border-b-4 border-r-4 border-[#8B4513]/40 rounded-br-xl"
+      ></div>
+
+      <div
         ref="contentElementsRef"
         class="relative z-10 flex flex-col items-center text-center space-y-3 md:space-y-5 px-6 md:px-0 w-full max-w-md text-[#5d4037]"
       >
@@ -146,7 +158,6 @@ onUnmounted(() => ctx?.revert());
             Tới dự {{ data.ceremonyTitle }} của hai con chúng tôi
           </h2>
         </div>
-
         <div
           class="text-4xl md:text-6xl text-[#b8860b] leading-tight py-2 font-patrick font-bold drop-shadow-sm transform -rotate-2"
         >
@@ -156,7 +167,6 @@ onUnmounted(() => ctx?.revert());
           >
           <span class="block">{{ data.mainName2 }}</span>
         </div>
-
         <div
           class="w-full border-2 border-[#3E2723] py-3 bg-[#FFECB3] rounded-xl shadow-cartoon relative overflow-hidden"
         >
@@ -206,7 +216,6 @@ onUnmounted(() => ctx?.revert());
             </div>
           </div>
         </div>
-
         <div>
           <p
             class="font-bold uppercase text-[#3e2723] text-xs md:text-sm mb-1 bg-[#FFD54F] inline-block px-2 py-0.5 rounded-md border border-[#3E2723] shadow-sm transform rotate-1"
@@ -224,7 +233,6 @@ onUnmounted(() => ctx?.revert());
             >📍 Xem bản đồ</a
           >
         </div>
-
         <div
           class="w-full grid grid-cols-2 gap-4 text-[10px] md:text-xs uppercase tracking-wide border-t-2 border-[#3E2723]/20 pt-3 opacity-90 font-bold"
         >
@@ -255,7 +263,6 @@ onUnmounted(() => ctx?.revert());
           class="absolute inset-0 bg-linear-to-b from-[#3E2723]/20 via-transparent to-[#3E2723]/70 mix-blend-multiply"
         ></div>
       </div>
-
       <div
         class="cover-content relative z-30 w-full pt-16 md:pt-20 px-4 flex flex-col items-center"
       >
@@ -265,7 +272,6 @@ onUnmounted(() => ctx?.revert());
           class="w-[90%] md:w-[70%] object-contain drop-shadow-xl animate-float-slow"
         />
       </div>
-
       <div
         ref="openButtonRef"
         @click="openInvitation"
@@ -300,13 +306,6 @@ onUnmounted(() => ctx?.revert());
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Pangolin&family=Patrick+Hand&display=swap");
-.font-pangolin {
-  font-family: "Pangolin", cursive;
-}
-.font-patrick {
-  font-family: "Patrick Hand", cursive;
-}
 .shadow-cartoon {
   box-shadow: 4px 4px 0px #3e2723;
 }
